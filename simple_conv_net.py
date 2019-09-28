@@ -10,12 +10,11 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 from tqdm import tqdm
 
-from dataset import CarDataset
-from dataset import importMeta
-from model import SimpleCNN
+from dataset import CarDataset, datasetHistogram
+from model import SimpleCNN, CNN
 
 
-plt.interactive(False)
+plt.interactive(True)
 
 
 def main(args):
@@ -31,14 +30,15 @@ def main(args):
     # -- DATASET -- #
     car_trainset = CarDataset(dataset_dir=args.dataset_dir / 'train',
                               transform=transform)
-    car_trainloader = DataLoader(car_trainset, batch_size=args.batch_size, shuffle=True)
+    datasetHistogram(car_trainset.labels)
 
+    car_trainloader = DataLoader(car_trainset, batch_size=args.batch_size, shuffle=True)
     car_testset = CarDataset(dataset_dir=args.dataset_dir / 'test',
                              transform=transform)
     car_testloader = DataLoader(car_testset, batch_size=args.batch_size, shuffle=True)
 
     # -- CONV NET -- #
-    net = SimpleCNN().to(args.device)
+    net = CNN().to(args.device)
     print(net)
 
     criterion = nn.CrossEntropyLoss()
@@ -68,7 +68,8 @@ def main(args):
 
         avg_loss = np.asarray(avg_loss).mean()
         losses.append(avg_loss)
-        
+        plt.plot(epoch, avg_loss)
+        plt.show()
         print(f'Average loss for epoch {epoch}: {avg_loss:.3f}')
 
     print('Finished Training')
@@ -115,5 +116,8 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
-
-    main(args)
+    #main(args)
+    from PIL import Image
+    plt.imshow(Image.open(args.dataset_dir / 'test' / 'img' / '000000.png'))
+    plt.show()
+    print(Image.open(args.dataset_dir / 'test' / 'img' / '000000.png').shape)

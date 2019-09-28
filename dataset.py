@@ -6,16 +6,42 @@ from PIL import Image
 from skimage import transform
 from torch.utils.data import Dataset
 from pathlib import Path
+import matplotlib.pyplot as plt
+
+plt.interactive(False)
 
 
 def importMeta(dataset_dir):
-    index = []
+    labels = []
     for meta in list((dataset_dir / 'meta').glob('*.yaml')):
         f = open(meta)
         dataMap = yaml.safe_load(f)
         cad_idx = dataMap["cad_idx"]
-        index.append(cad_idx)
-    return index
+        labels.append(cad_idx)
+    return labels
+
+def datasetHistogram(labels):
+    print(f"Labels: {labels}")
+    plt.hist(labels, histtype='bar', rwidth=0.8)
+    plt.gca().set(title='Frequency Histogram', ylabel='Frequency')
+    plt.show()
+
+def calculate_img_stats_avg(loader):
+    mean = 0.
+    std = 0.
+    nb_samples = 0.
+    for data in loader:
+        imgs = data['image']
+        batch_samples = imgs.size(0)
+        imgs = imgs.view(batch_samples, imgs.size(1), -1)
+        mean += imgs.mean(2).sum(0)
+        std += imgs.std(2).sum(0)
+        nb_samples += batch_samples
+
+    mean /= nb_samples
+    std /= nb_samples
+    print (mean, std)
+    return mean, std
 
 class Rescale(object):
 
@@ -61,7 +87,7 @@ class CarDataset(Dataset):
 
         self.dataset_dir = dataset_dir
         self.transform = transform
-        self.index = importMeta(self.dataset_dir)
+        self.labels = importMeta(self.dataset_dir)
         print(f"Imported labels from {self.dataset_dir}")
 
     def __len__(self):
@@ -80,11 +106,10 @@ class CarDataset(Dataset):
 
         image = Image.open(self.dataset_dir / 'img' / img_name)
 
-        cad_idx = self.index[idx]
+        cad_idx = self.labels[idx]
         sample = {'image': image, 'idx': cad_idx}
 
         if self.transform:
             sample['image'] = self.transform(sample['image'])
 
         return sample
-
