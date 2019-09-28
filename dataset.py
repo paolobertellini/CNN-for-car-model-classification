@@ -8,6 +8,15 @@ from torch.utils.data import Dataset
 from pathlib import Path
 
 
+def importMeta(dataset_dir):
+    index = []
+    for meta in list((dataset_dir / 'meta').glob('*.yaml')):
+        f = open(meta)
+        dataMap = yaml.safe_load(f)
+        cad_idx = dataMap["cad_idx"]
+        index.append(cad_idx)
+    return index
+
 class Rescale(object):
 
     def __init__(self, output_size):
@@ -52,6 +61,8 @@ class CarDataset(Dataset):
 
         self.dataset_dir = dataset_dir
         self.transform = transform
+        self.index = importMeta(self.dataset_dir)
+        print(f"Imported labels from {self.dataset_dir}")
 
     def __len__(self):
         return len(list((self.dataset_dir / 'img').glob('*.png')))
@@ -66,16 +77,14 @@ class CarDataset(Dataset):
             name += '0'
         name += str(idx)
         img_name = name + '.png'
-        meta_name = name + '.yaml'
 
         image = Image.open(self.dataset_dir / 'img' / img_name)
-        f = open(self.dataset_dir / 'meta' / meta_name)
 
-        dataMap = yaml.safe_load(f)
-        cad_idx = dataMap["cad_idx"]
+        cad_idx = self.index[idx]
         sample = {'image': image, 'idx': cad_idx}
 
         if self.transform:
             sample['image'] = self.transform(sample['image'])
 
         return sample
+
