@@ -1,5 +1,5 @@
 
-import matplotlib as plt
+import matplotlib.pyplot as plt
 from tqdm import tqdm
 import torch.nn as nn
 import torch.optim as optim

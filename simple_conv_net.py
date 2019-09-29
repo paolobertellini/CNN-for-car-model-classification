@@ -1,16 +1,13 @@
 import argparse
 from pathlib import Path
 
-import matplotlib.pyplot as plt
-import torch
 from torch.utils.data import DataLoader
 from torchvision import transforms
-from tqdm import tqdm
 
 from dataset import CarDataset, datasetHistogram
 from model import CNN
 from training import train
-
+from testing import test
 
 def main(args):
 
@@ -23,7 +20,6 @@ def main(args):
         transforms.Normalize((0.6242, 0.6232, 0.5952), (0.8963, 0.8787, 0.8833))])
 
     # -- DATASET -- #
-
     print(f"IMPORTING DATASET...")
 
     trainset = CarDataset(dataset_dir=args.dataset_dir / 'train',
@@ -35,6 +31,7 @@ def main(args):
                              transform=transform)
     testloader = DataLoader(testset, batch_size=args.batch_size, shuffle=True)
 
+    print(f"DATASET IMPORTED")
 
     # -- CONV NET -- #
     net = CNN().to(args.device)
@@ -46,59 +43,17 @@ def main(args):
     print(f"Loss history: {losses}")
 
     # -- TESTING -- #
-    correct = list(0. for i in range(10))
-    total = list(0. for i in range(10))
+    print(f"STARTING TESTING... ({len(trainset)} images)")
+    test(testloader, classes, args.batch_size, net, args.device)
+    print("TESTING FINISHED")
 
-    with torch.no_grad():
-        for i, batch in tqdm(enumerate(testloader), total=len(testloader)):
-            images, labels = batch['image'], batch['idx']
-            images = images.float().to(args.device)
-            outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
-
-            for item in range(args.batch_size):
-                label = labels[item]
-                total[label] += 1
-                if (predicted.data.cpu()[item] == label):
-                    correct[label] += 1
-
-    tot_correct = sum(correct)
-    tot = sum(total)
-
-    print(f"Accuracy of the network on the test images: {100 * tot_correct / tot}%")
-    accuracy = []
-    for i in range(10):
-        accuracy.append(100 * correct[i] / total[i])
-        print('Accuracy of %5s class: %2d %%' % (
-            classes[i], accuracy[i]))
-
-    plt.bar(classes, accuracy)
-    plt.show()
-    #
-    # correct = list(0. for i in range(10))
-    # total = list(0. for i in range(10))
-    # with torch.no_grad():
-    #     for batch in tqdm(testloader, total=len(testloader)):
-    #         images, labels = batch['image'], batch['idx']
-    #         outputs = net(images)
-    #         images = images.float().to(args.device)
-    #         _, predicted = torch.max(outputs, 1)
-    #         c = (predicted == labels).squeeze()
-    #         for i in range(args.batch_size):
-    #             label = labels[i]
-    #             correct[label] += c[i].item()
-    #             total[label] += 1
-    #
-    # for i in range(10):
-    #     print('Accuracy of %5s : %2d %%' % (
-    #         classes[i], 100 * correct[i] / total[i]))
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=2)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
