@@ -2,10 +2,10 @@ import argparse
 from pathlib import Path
 
 
-import matplotlib
-matplotlib.use('TkAgg')
-import matplotlib.pyplot as plt
+import matplotlib; print(matplotlib.get_backend())
 
+import matplotlib.pyplot as plt
+import os
 import numpy as np
 import torch
 import torch.nn as nn
@@ -18,8 +18,6 @@ from dataset import CarDataset, datasetHistogram
 from model import SimpleCNN, CNN
 
 
-plt.interactive(True)
-plt.show(block=True)
 
 
 def main(args):
@@ -35,7 +33,7 @@ def main(args):
     # -- DATASET -- #
     trainset = CarDataset(dataset_dir=args.dataset_dir / 'train',
                               transform=transform)
-    #datasetHistogram(trainset.labels)
+    datasetHistogram(trainset.labels)
     trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True)
 
     testset = CarDataset(dataset_dir=args.dataset_dir / 'test',
@@ -77,11 +75,13 @@ def main(args):
 
         avg_loss = np.asarray(avg_loss).mean()
         losses.append(avg_loss)
-        plt.plot(epoch, avg_loss)
-        plt.show()
         print(f'Average loss for epoch {epoch}: {avg_loss:.3f}')
 
     print('Finished Training, losses:', losses)
+    plt.plot(losses)
+    plt.xlabel('epochs')
+    plt.ylabel('loss')
+    plt.show()
 
 
 
@@ -97,23 +97,24 @@ def main(args):
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
 
-            # print("OUT DATA: ", torch.max(outputs.data, 1))
-            # print("PREDICTED: ", _, predicted)
-            # print("PREDICTED 2: ", predicted.data.cpu() )
-            # print("LABELS: ", labels, labels.size(0))
-
             for item in range(args.batch_size):
                 label = labels[item]
                 total[label] += 1
                 if (predicted.data.cpu()[item] == label):
                     correct[label] += 1
 
-            print(f"BATCH TEST {i}: predicted {predicted.data.cpu()} true {labels}")
-
     tot_correct = sum(correct)
     tot = sum(total)
 
     print(f"Accuracy of the network on the test images: {100 * tot_correct / tot}%")
+    accuracy = []
+    for i in range(10):
+        accuracy.append(100 * correct[i] / total[i])
+        print('Accuracy of %5s class: %2d %%' % (
+            classes[i], accuracy[i]))
+
+    plt.bar(classes, accuracy)
+    plt.show()
     #
     # correct = list(0. for i in range(10))
     # total = list(0. for i in range(10))
@@ -138,12 +139,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=2)
+    parser.add_argument('--epochs', type=int, default=70)
     parser.add_argument('--batch_size', type=int, default=4)
-    parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda')
+    parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
     main(args)
-    # from PIL import Image
-    # plt.imshow(Image.open(args.dataset_dir / 'test' / 'img' / '000000.png'))
-    # plt.show(block=True)
-    # print(Image.open(args.dataset_dir / 'test' / 'img' / '000000.png').size)
+
