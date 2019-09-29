@@ -38,9 +38,10 @@ def main(args):
 
     # -- TRAINING -- #
     print(f"STARTING TRAINING... ({args.epochs} epochs)")
-    losses = train(args.epochs, trainloader, net, args.device)
+    losses, accs = train(args.epochs, args.batch_size, trainloader, net, args.device)
     print("TRAINING FINISHED")
     print(f"Loss history: {losses}")
+    print(f"Accuracy history: {accs}")
 
     # -- TESTING -- #
     print(f"STARTING TESTING... ({len(trainset)} images)")
@@ -48,12 +49,11 @@ def main(args):
     print("TESTING FINISHED")
 
 
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=2)
+    parser.add_argument('--epochs', type=int, default=60)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
