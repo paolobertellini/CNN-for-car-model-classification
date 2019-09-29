@@ -5,7 +5,6 @@ from PIL import Image
 from skimage import transform
 from torch.utils.data import Dataset
 from pathlib import Path
-import matplotlib.pyplot as plt
 
 
 def importMeta(dataset_dir):
@@ -17,11 +16,7 @@ def importMeta(dataset_dir):
         labels.append(cad_idx)
     return labels
 
-def datasetHistogram(labels):
-    #print(f"Labels: {labels}")
-    plt.hist(labels, histtype='bar', rwidth=0.8)
-    plt.gca().set(title='Frequency Histogram', ylabel='Frequency')
-    plt.show()
+
 
 def calculate_img_stats_avg(loader):
     mean = 0.

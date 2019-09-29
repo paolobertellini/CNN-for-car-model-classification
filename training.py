@@ -42,16 +42,6 @@ def train(epochs, batch_size,  trainloader, net, device):
         acc = 100 * corrects / items
         losses.append(avg_loss)
         accs.append(acc)
-        print(f'Epoch {epoch} statistics: [AVG LOSS: {avg_loss:.4f}, ACC: {acc}%]')
-
-    plt.plot(losses)
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
-    plt.show()
-
-    plt.plot(accs)
-    plt.xlabel('epochs')
-    plt.ylabel('accuracy')
-    plt.show()
+        print(f'Epoch {epoch} statistics: [AVG LOSS: {avg_loss:.4f}, ACC: {acc:.2f}%]')
 
     return losses, accs

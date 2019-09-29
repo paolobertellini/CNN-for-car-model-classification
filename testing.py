@@ -1,7 +1,6 @@
 
 import torch
 from tqdm import tqdm
-import matplotlib.pyplot as plt
 
 def test(testloader, classes, batch_size, net, device):
 
@@ -27,9 +26,7 @@ def test(testloader, classes, batch_size, net, device):
     print(f"Accuracy of the network on the test images: {100 * tot_correct / tot}%")
     accuracy = []
     for i in range(10):
-        accuracy.append(100 * correct[i] / total[i])
+        accuracy.append(100 * correct[i] / (total[i]+1))
         print('Accuracy of %5s class: %2d %%' % (
             classes[i], accuracy[i]))
-
-    plt.bar(classes, accuracy)
-    plt.show()
+    return accuracy

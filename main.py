@@ -4,10 +4,11 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
-from dataset import CarDataset, datasetHistogram
+from dataset import CarDataset
 from model import CNN
 from training import train
 from testing import test
+import plots
 
 def main(args):
 
@@ -24,7 +25,6 @@ def main(args):
 
     trainset = CarDataset(dataset_dir=args.dataset_dir / 'train',
                               transform=transform)
-    datasetHistogram(trainset.labels)
     trainloader = DataLoader(trainset, batch_size=args.batch_size, shuffle=True)
 
     testset = CarDataset(dataset_dir=args.dataset_dir / 'test',
@@ -38,22 +38,24 @@ def main(args):
 
     # -- TRAINING -- #
     print(f"STARTING TRAINING... ({args.epochs} epochs)")
-    losses, accs = train(args.epochs, args.batch_size, trainloader, net, args.device)
+    losses, accs_train = train(args.epochs, args.batch_size, trainloader, net, args.device)
     print("TRAINING FINISHED")
     print(f"Loss history: {losses}")
-    print(f"Accuracy history: {accs}")
+    print(f"Accuracy history: {accs_train}")
 
     # -- TESTING -- #
-    print(f"STARTING TESTING... ({len(trainset)} images)")
-    test(testloader, classes, args.batch_size, net, args.device)
+    print(f"STARTING TESTING... ({len(testset)} images)")
+    accs_test = test(testloader, classes, args.batch_size, net, args.device)
     print("TESTING FINISHED")
+
+    plots.printPlots(classes, args.dataset_dir, losses, accs_train, accs_test)
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=60)
+    parser.add_argument('--epochs', type=int, default=100
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
