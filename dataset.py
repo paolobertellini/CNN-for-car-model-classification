@@ -1,4 +1,3 @@
-import glob
 
 import torch
 import yaml
@@ -7,9 +6,6 @@ from skimage import transform
 from torch.utils.data import Dataset
 from pathlib import Path
 import matplotlib.pyplot as plt
-
-
-plt.interactive(False)
 
 
 def importMeta(dataset_dir):
@@ -22,7 +18,7 @@ def importMeta(dataset_dir):
     return labels
 
 def datasetHistogram(labels):
-    print(f"Labels: {labels}")
+    #print(f"Labels: {labels}")
     plt.hist(labels, histtype='bar', rwidth=0.8)
     plt.gca().set(title='Frequency Histogram', ylabel='Frequency')
     plt.show()
