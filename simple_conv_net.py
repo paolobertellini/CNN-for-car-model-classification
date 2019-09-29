@@ -87,8 +87,9 @@ def main(args):
 
     # -- TESTING -- #
 
-    correct = 0
-    total = 0
+    correct = list(0. for i in range(10))
+    total = list(0. for i in range(10))
+
     with torch.no_grad():
         for i, batch in tqdm(enumerate(testloader), total=len(testloader)):
             images, labels = batch['image'], batch['idx']
@@ -101,17 +102,21 @@ def main(args):
             # print("PREDICTED 2: ", predicted.data.cpu() )
             # print("LABELS: ", labels, labels.size(0))
 
-            total += labels.size(0)
-            for i in range(labels.size(0)):
-                if (predicted.data.cpu()[i] == labels[i]):
-                    correct += 1
+            for item in range(args.batch_size):
+                label = labels[item]
+                total[label] += 1
+                if (predicted.data.cpu()[item] == label):
+                    correct[label] += 1
 
             print(f"BATCH TEST {i}: predicted {predicted.data.cpu()} true {labels}")
 
-    print(f"Accuracy of the network on the test images: {100 * correct / total}%")
+    tot_correct = sum(correct)
+    tot = sum(total)
+
+    print(f"Accuracy of the network on the test images: {100 * tot_correct / tot}%")
     #
-    # class_correct = list(0. for i in range(10))
-    # class_total = list(0. for i in range(10))
+    # correct = list(0. for i in range(10))
+    # total = list(0. for i in range(10))
     # with torch.no_grad():
     #     for batch in tqdm(testloader, total=len(testloader)):
     #         images, labels = batch['image'], batch['idx']
@@ -121,19 +126,19 @@ def main(args):
     #         c = (predicted == labels).squeeze()
     #         for i in range(args.batch_size):
     #             label = labels[i]
-    #             class_correct[label] += c[i].item()
-    #             class_total[label] += 1
+    #             correct[label] += c[i].item()
+    #             total[label] += 1
     #
     # for i in range(10):
     #     print('Accuracy of %5s : %2d %%' % (
-    #         classes[i], 100 * class_correct[i] / class_total[i]))
+    #         classes[i], 100 * correct[i] / total[i]))
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=20)
+    parser.add_argument('--epochs', type=int, default=2)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda')
     args = parser.parse_args()
