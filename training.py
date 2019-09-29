@@ -1,16 +1,15 @@
 
 import matplotlib as plt
-import tqdm
+from tqdm import tqdm
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 
 def train(epochs, trainloader, net, device):
 
+    losses = []
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-
-    losses = []
 
     for epoch in range(epochs):
 
@@ -39,6 +38,3 @@ def train(epochs, trainloader, net, device):
     plt.show()
 
     return losses
-
-class training():
-    print("")

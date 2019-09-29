@@ -12,7 +12,6 @@ from model import CNN
 from training import train
 
 
-
 def main(args):
 
     classes = ('Full size car', 'Mid size car', 'Cross over', 'Van',
