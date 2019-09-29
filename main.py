@@ -55,7 +55,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=100
+    parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
