@@ -20,8 +20,9 @@ def train(epochs, batch_size,  trainloader, net, device):
 
         for batch in tqdm(trainloader, total=len(trainloader)):
 
-            inputs, labels = batch['image'], batch['idx']
+            inputs = batch['image']
             inputs = inputs.float().to(device)
+            labels = batch['idx'].to(device)
 
             outputs = net(inputs)
             _, predicted = torch.max(outputs.data, 1)
@@ -29,7 +30,7 @@ def train(epochs, batch_size,  trainloader, net, device):
             for item in range(batch_size):
                 label = labels[item]
                 epoch_items += 1
-                if (predicted.data.cpu()[item] == label):
+                if (predicted.data[item] == label):
                     epoch_corrects += 1
 
             optimizer.zero_grad()

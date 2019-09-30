@@ -44,7 +44,7 @@ def main(args):
     print(f"Accuracy history: {train_acc}")
 
     # -- TESTING -- #
-    print(f"STARTING TESTING... ({len(testset)} epochs)")
+    print(f"STARTING TESTING... ({args.epochs} epochs)")
     test_loss, test_acc, class_acc = test(args.epochs, testloader, classes, args.batch_size, net, args.device)
     print("TESTING FINISHED")
     print(f"Loss history: {test_loss}")
@@ -57,9 +57,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=4)
-    parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
+    parser.add_argument('--device', choices=['cpu', 'cuda'], default='cuda')
     args = parser.parse_args()
     main(args)
 

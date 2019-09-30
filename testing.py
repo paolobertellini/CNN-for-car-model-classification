@@ -3,9 +3,9 @@ import torch
 import torch.nn as nn
 from tqdm import tqdm
 import numpy as np
-import torch.optim as
+import torch.optim as optim
 
-#opencv
+
 
 def test(epochs, testloader, classes, batch_size, net, device):
 
@@ -25,8 +25,9 @@ def test(epochs, testloader, classes, batch_size, net, device):
 
         for i, batch in tqdm(enumerate(testloader), total=len(testloader)):
 
-            images, labels = batch['image'], batch['idx']
+            images = batch['image']
             images = images.float().to(device)
+            labels = batch['idx'].to(device)
 
             outputs = net(images)
             _, predicted = torch.max(outputs.data, 1)
@@ -35,7 +36,7 @@ def test(epochs, testloader, classes, batch_size, net, device):
                 label = labels[item]
                 epoch_items[label] += 1
                 total_items[label] += 1
-                if (predicted.data.cpu()[item] == label):
+                if (predicted.data[item] == label):
                     epoch_corrects[label] += 1
                     total_corrects[label] += 1
 
