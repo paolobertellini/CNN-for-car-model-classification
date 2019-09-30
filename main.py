@@ -38,24 +38,26 @@ def main(args):
 
     # -- TRAINING -- #
     print(f"STARTING TRAINING... ({args.epochs} epochs)")
-    losses, accs_train = train(args.epochs, args.batch_size, trainloader, net, args.device)
+    train_loss, train_acc = train(args.epochs, args.batch_size, trainloader, net, args.device)
     print("TRAINING FINISHED")
-    print(f"Loss history: {losses}")
-    print(f"Accuracy history: {accs_train}")
+    print(f"Loss history: {train_loss}")
+    print(f"Accuracy history: {train_acc}")
 
     # -- TESTING -- #
-    print(f"STARTING TESTING... ({len(testset)} images)")
-    accs_test = test(testloader, classes, args.batch_size, net, args.device)
+    print(f"STARTING TESTING... ({len(testset)} epochs)")
+    test_loss, test_acc, class_acc = test(args.epochs, testloader, classes, args.batch_size, net, args.device)
     print("TESTING FINISHED")
+    print(f"Loss history: {test_loss}")
+    print(f"Accuracy history: {test_acc}")
 
-    plots.printPlots(classes, args.dataset_dir, losses, accs_train, accs_test)
+    plots.printPlots(classes, args.dataset_dir, args.epochs, train_loss, train_acc, test_loss, test_acc, class_acc)
 
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=100)
+    parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()

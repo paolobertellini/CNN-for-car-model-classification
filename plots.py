@@ -1,9 +1,9 @@
 
 import matplotlib.pyplot as plt
 from dataset import importMeta
+import numpy as np
 
-
-def printPlots(classes, dataset_dir, losses, accs_train, accs_test):
+def printPlots(classes, dataset_dir, epochs, train_loss, train_acc, test_loss, test_acc, class_acc):
 
     train_labels = importMeta(dataset_dir / 'train')
     train_classes = list(0. for i in range(10))
@@ -17,34 +17,50 @@ def printPlots(classes, dataset_dir, losses, accs_train, accs_test):
 
     datasetDistribution(train_classes, classes, 'Trainset')
     datasetDistribution(test_classes, classes, 'Testset')
-    #datasetComparison(classes, train_classes, test_classes)
+    datasetComparison(classes, train_classes, test_classes)
 
-    lossHistory(losses)
-    accuracyHistory(accs_train)
-    netAccuracy(classes, accs_test)
+    lossHistory(train_loss)
+    accuracyHistory(train_acc)
+
+    lossHistory(test_loss)
+    accuracyHistory(test_acc)
+
+    netAccuracy(classes, class_acc)
+    lossComparison(train_loss, test_loss, epochs)
 
 def datasetDistribution(labels, classes, title):
     plt.bar(classes, labels)
     plt.xticks(rotation=30, ha='right')
     plt.title(f"{title} distribution")
-    plt.show()
+    plt.imsave()
 
 def datasetComparison(classes, train, test):
-    plt.bar(classes, [train, test])
+    plt.bar(classes, train)
+    plt.bar(classes, test)
     plt.xticks(rotation=30, ha='right')
     plt.title('Trainset and testset distribution')
     plt.show()
 
 def lossHistory(losses):
     plt.plot(losses)
-    plt.xlabel('epochs')
-    plt.ylabel('loss')
+    plt.title('Training loss history')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.show()
+
+def lossComparison(train_loss, test_loss, epochs):
+    plt.plot(np.arange(epochs), train_loss, np.arange(epochs), test_loss)
+    plt.show()
+
+def accComparison(train_acc, test_acc, epochs):
+    plt.plot(np.arange(epochs), train_acc, np.arange(epochs), test_acc)
     plt.show()
 
 def accuracyHistory(accs):
     plt.plot(accs)
-    plt.xlabel('epochs')
-    plt.ylabel('accuracy')
+    plt.title('Training accuracy history')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
     plt.show()
 
 def netAccuracy(classes, accuracy):
