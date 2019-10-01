@@ -5,7 +5,7 @@ import torch.optim as optim
 import numpy as np
 import torch
 
-def train(batch_size,  trainloader, net, device):
+def train(batch_size, trainloader, net, device):
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)

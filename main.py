@@ -3,15 +3,20 @@ from pathlib import Path
 
 from torch.utils.data import DataLoader
 from torchvision import transforms
+import torch
 
 from dataset import CarDataset
 from model import CNN
 from training import train
 from testing import test
 import plots
-from finetunig import initialize_model
+
+#from finetunig import initialize_model
 
 def main(args):
+
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'
+    print(f"Using {device}..")
 
     classes = ('Full size car', 'Mid size car', 'Cross over', 'Van',
                'Coupe', 'Family car', 'Beetle', 'Single seater', 'City car', 'Pick up')
@@ -35,7 +40,7 @@ def main(args):
     print(f"DATASET IMPORTED")
 
     # -- CONV NET -- #
-    net = CNN().to(args.device)
+    net = CNN().to(device)
 
     train_losses = []
     train_accs = []
@@ -48,12 +53,12 @@ def main(args):
     for epoch in range(args.epochs):
 
         # taining
-        train_loss, train_acc = train(args.batch_size, trainloader, net, args.device)
+        train_loss, train_acc = train(args.batch_size, trainloader, net, device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
         #test
-        test_loss, test_acc, true, predict = test(args.batch_size, testloader, classes, net, args.device)
+        test_loss, test_acc, true, predict = test(args.batch_size, testloader, net, device)
         test_losses.append(test_loss)
         test_accs.append(test_acc)
         true_list += true
@@ -63,9 +68,11 @@ def main(args):
                              f"[TESTING loss: {test_loss:.5f} acc: {test_acc:.2f} %]")
 
 
-    print(f"TRAINING AND TESTING FINISCHED")
-    print(F"TRAIN LOSS: {train_losses} ACC: {train_acc}")
-    print(F"TEST LOSS: {test_losses} ACC: {test_losses}")
+    print(f"TRAINING AND TESTING FINISHED")
+    print(f"TRAIN LOSS HISTORY: {train_losses}")
+    print(f"TRAIN ACCURACY HISTORY: {train_accs}")
+    print(f"TEST LOSS HISTORY: {test_losses}")
+    print(f"TEST ACCURACY HISTORY: {test_accs}")
     plots.printPlots(classes, args.dataset_dir, args.epochs, train_losses, train_accs, test_losses, test_accs, predict_list, true_list)
 
 if __name__ == '__main__':
@@ -74,7 +81,8 @@ if __name__ == '__main__':
     parser.add_argument('dataset_dir', type=Path)
     parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=4)
-    parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
+    #parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
+
     main(args)
 

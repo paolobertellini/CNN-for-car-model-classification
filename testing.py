@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 
 
-def test(batch_size, testloader, classes, net, device):
+def test(batch_size, testloader, net, device):
 
     # total_losses = []
     # total_accs = []
