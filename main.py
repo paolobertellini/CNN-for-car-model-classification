@@ -9,6 +9,7 @@ from model import CNN
 from training import train
 from testing import test
 import plots
+from finetunig import initialize_model
 
 def main(args):
 
@@ -52,12 +53,11 @@ def main(args):
 
     plots.printPlots(classes, args.dataset_dir, args.epochs, train_loss, train_acc, test_loss, test_acc, class_acc, predict, true)
 
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=5)
+    parser.add_argument('--epochs', type=int, default=10)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
