@@ -11,8 +11,10 @@ def test(epochs, testloader, classes, batch_size, net, device):
 
     total_losses = []
     total_accs = []
-    total_items = list(0. for i in range(10))
-    total_corrects = list(0. for i in range(10))
+    total_items = list(1. for i in range(10))
+    total_corrects = list(1. for i in range(10))
+    true = []
+    predict = []
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
@@ -30,13 +32,16 @@ def test(epochs, testloader, classes, batch_size, net, device):
             labels = batch['idx'].to(device)
 
             outputs = net(images)
-            _, predicted = torch.max(outputs.data, 1)
+            _, prediction = torch.max(outputs.data, 1)
 
             for item in range(batch_size):
                 label = labels[item]
                 epoch_items[label] += 1
                 total_items[label] += 1
-                if (predicted.data[item] == label):
+                predicted = prediction.data[item]
+                predict.append(predicted.item())
+                true.append(label.item())
+                if (predicted == label):
                     epoch_corrects[label] += 1
                     total_corrects[label] += 1
 
@@ -63,4 +68,4 @@ def test(epochs, testloader, classes, batch_size, net, device):
         class_accuracy.append(100 * total_corrects[i] / (total_items[i]+1))
         print(f"[{classes[i]}: {class_accuracy[i]:.2f}%]")
 
-    return total_losses, total_accs, class_accuracy
+    return total_losses, total_accs, class_accuracy, total_corrects, predict, true
