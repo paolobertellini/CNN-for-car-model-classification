@@ -37,21 +37,36 @@ def main(args):
     # -- CONV NET -- #
     net = CNN().to(args.device)
 
-    # -- TRAINING -- #
-    print(f"STARTING TRAINING... ({args.epochs} epochs)")
-    train_loss, train_acc = train(args.epochs, args.batch_size, trainloader, net, args.device)
-    print("TRAINING FINISHED")
-    print(f"Loss history: {train_loss}")
-    print(f"Accuracy history: {train_acc}")
+    train_losses = []
+    train_accs = []
+    test_losses = []
+    test_accs = []
 
-    # -- TESTING -- #
-    print(f"STARTING TESTING... ({args.epochs} epochs)")
-    test_loss, test_acc, class_acc, true, predict, true = test(args.epochs, testloader, classes, args.batch_size, net, args.device)
-    print("TESTING FINISHED")
-    print(f"Loss history: {test_loss}")
-    print(f"Accuracy history: {test_acc}")
+    true_list = []
+    predict_list = []
 
-    plots.printPlots(classes, args.dataset_dir, args.epochs, train_loss, train_acc, test_loss, test_acc, class_acc, predict, true)
+    for epoch in range(args.epochs):
+
+        # taining
+        train_loss, train_acc = train(args.batch_size, trainloader, net, args.device)
+        train_losses.append(train_loss)
+        train_accs.append(train_acc)
+
+        #test
+        test_loss, test_acc, true, predict = test(args.batch_size, testloader, classes, net, args.device)
+        test_losses.append(test_loss)
+        test_accs.append(test_acc)
+        true_list += true
+        predict_list += predict
+
+        print(f"EPOCH {epoch}: [TRAINING loss: {train_loss:.5f} acc: {train_acc:.2f}%]",
+                             f"[TESTING loss: {test_loss:.5f} acc: {test_acc:.2f} %]")
+
+
+    print(f"TRAINING AND TESTING FINISCHED")
+    print(F"TRAIN LOSS: {train_losses} ACC: {train_acc}")
+    print(F"TEST LOSS: {test_losses} ACC: {test_losses}")
+    plots.printPlots(classes, args.dataset_dir, args.epochs, train_losses, train_accs, test_losses, test_accs, predict_list, true_list)
 
 if __name__ == '__main__':
 
