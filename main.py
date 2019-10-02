@@ -6,10 +6,12 @@ from torchvision import transforms
 import torch
 
 from dataset import CarDataset
+from funetuning2 import finetuning2
 from model import CNN
 from training import train
 from testing import test
 import plots
+from main_finetuning import finetuning
 
 #from finetunig import initialize_model
 
@@ -84,5 +86,5 @@ if __name__ == '__main__':
     #parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
 
-    main(args)
-
+    #main(args)
+    finetuning2(args.dataset_dir)
