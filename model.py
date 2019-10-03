@@ -2,9 +2,9 @@ import torch
 import torch.nn.functional as F
 
 
-class CNN(torch.nn.Module):
+class Small(torch.nn.Module):
     def __init__(self):
-        super(CNN, self).__init__()
+        super(Small, self).__init__()
         self.conv1 = torch.nn.Conv2d(3, 6, 5)
         self.pool = torch.nn.MaxPool2d(2, 2)
         self.conv2 = torch.nn.Conv2d(6, 16, 5)
@@ -22,9 +22,9 @@ class CNN(torch.nn.Module):
         return x
     
 
-class SimpleCNN(torch.nn.Module):
+class Mini(torch.nn.Module):
     def __init__(self):
-        super(SimpleCNN, self).__init__()
+        super(Mini, self).__init__()
 
         self.conv1 = torch.nn.Conv2d(3, 18, kernel_size=3, stride=1, padding=1)
 
