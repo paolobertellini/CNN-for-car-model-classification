@@ -6,12 +6,12 @@ from torchvision import transforms
 import torch
 
 from dataset import CarDataset
-from funetuning2 import finetuning2
+from finetuning import finetuning2
 from model import CNN
 from training import train
 from testing import test
 import plots
-from main_finetuning import finetuning
+
 
 #from finetunig import initialize_model
 

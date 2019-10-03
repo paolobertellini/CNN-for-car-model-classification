@@ -33,16 +33,17 @@ training returns the best performing model. After each epoch, the
 training and validation accuracies are printed.
 '''
 
-def train_model(model, device, trainloader, criterion, optimizer, num_epochs=25, is_inception=False):
+def train_model(model, device, trainloader, criterion, optimizer, num_epochs=25):
+
     since = time.time()
-
     val_acc_history = []
-
     best_model_wts = copy.deepcopy(model.state_dict())
     best_acc = 0.0
 
     for epoch in range(num_epochs):
-        print('Epoch {}/{}'.format(epoch, num_epochs - 1))
+
+        print('-' * 10)
+        print(f"Epoch {epoch}/{num_epochs}")
         print('-' * 10)
 
         # Each epoch has a training and validation phase
@@ -63,37 +64,30 @@ def train_model(model, device, trainloader, criterion, optimizer, num_epochs=25,
 
             # forward
             # track history if only in train
-            with torch.set_grad_enabled(True):
-                # Get model outputs and calculate loss
-                # Special case for inception because in training it has an auxiliary output. In train
-                #   mode we calculate the loss by summing the final output and the auxiliary output
-                #   but in testing we only consider the final output.
-                if is_inception:
-                    # From https://discuss.pytorch.org/t/how-to-optimize-inception-model-with-auxiliary-classifiers/7958
-                    outputs, aux_outputs = model(inputs)
-                    loss1 = criterion(outputs, labels)
-                    loss2 = criterion(aux_outputs, labels)
-                    loss = loss1 + 0.4 * loss2
-                else:
-                    outputs = model(inputs)
-                    loss = criterion(outputs, labels)
 
-                _, preds = torch.max(outputs, 1)
+            # Get model outputs and calculate loss
+            # Special case for inception because in training it has an auxiliary output. In train
+            #   mode we calculate the loss by summing the final output and the auxiliary output
+            #   but in testing we only consider the final output.
+            # From https://discuss.pytorch.org/t/how-to-optimize-inception-model-with-auxiliary-classifiers/7958
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
 
-                # backward + optimize only if in training phase
-                loss.backward()
-                optimizer.step()
+            _, preds = torch.max(outputs, 1)
+
+            # backward + optimize only if in training phase
+            loss.backward()
+            optimizer.step()
 
             # statistics
             running_loss += loss.item() * inputs.size(0)
             running_corrects += torch.sum(preds == labels.data)
-
+            print(f"Running loss: {running_loss} running corrects: {running_corrects}")
             epoch_loss = running_loss / len(trainloader.dataset)
             epoch_acc = running_corrects.double() / len(trainloader.dataset)
-
             print('{} Loss: {:.4f} Acc: {:.4f}'.format('training', epoch_loss, epoch_acc))
 
-        print()
+        #print()
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
@@ -196,7 +190,7 @@ def finetuning2(data_dir):
     model_name = "squeezenet"
     num_classes = 10
     batch_size = 4
-    num_epochs = 10
+    num_epochs = 1
 
     # Flag for feature extracting. When False, we finetune the whole model,
     #   when True we only update the reshaped layer params
@@ -231,7 +225,7 @@ def finetuning2(data_dir):
     # Send the model to GPU
     model_ft = model_ft.to(device)
 
-    # Gather the parameters to be optimized/updated in this run. If we are
+    #   the parameters to be optimized/updated in this run. If we are
     #  finetuning we will be updating all parameters. However, if we are
     #  doing feature extract method, we will only update the parameters
     #  that we have just initialized, i.e. the parameters with requires_grad
@@ -256,8 +250,8 @@ def finetuning2(data_dir):
     criterion = nn.CrossEntropyLoss()
 
     # Train and evaluate
-    model_ft, hist = train_model(model_ft, device, trainloader, criterion, optimizer_ft, num_epochs=num_epochs,
-                                 is_inception=(model_name == "inception"))
+    model_ft, hist = train_model(model_ft, device, trainloader, criterion, optimizer_ft, num_epochs=num_epochs)
+
 
     # Initialize the non-pretrained version of the model used for this run
     scratch_model, _ = initialize_model(model_name, num_classes, feature_extract=False, use_pretrained=False)
@@ -265,7 +259,7 @@ def finetuning2(data_dir):
     scratch_optimizer = optim.SGD(scratch_model.parameters(), lr=0.001, momentum=0.9)
     scratch_criterion = nn.CrossEntropyLoss()
     _, scratch_hist = train_model(scratch_model, device, trainloader, scratch_criterion, scratch_optimizer,
-                                  num_epochs=num_epochs, is_inception=(model_name == "inception"))
+                                  num_epochs=num_epochs)
 
     # Plot the training curves of validation accuracy vs. number
     #  of training epochs for the transfer learning method and
@@ -283,7 +277,7 @@ def finetuning2(data_dir):
     plt.plot(range(1, num_epochs + 1), shist, label="Scratch")
     plt.ylim((0, 1.))
     plt.xticks(np.arange(1, num_epochs + 1, 1.0))
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 
