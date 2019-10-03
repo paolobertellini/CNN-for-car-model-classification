@@ -17,7 +17,6 @@ def importMeta(dataset_dir):
     return labels
 
 
-
 def calculate_img_stats_avg(loader):
     mean = 0.
     std = 0.

@@ -6,7 +6,7 @@ from torchvision import transforms
 import torch
 
 from dataset import CarDataset
-from finetuning import finetuning2
+from finetuning import finetuning
 from model import CNN
 from training import train
 from testing import test
@@ -44,18 +44,18 @@ def main(args):
     # -- CONV NET -- #
     net = CNN().to(device)
 
+    # statistics
     train_losses = []
     train_accs = []
     test_losses = []
     test_accs = []
-
     true_list = []
     predict_list = []
 
     for epoch in range(args.epochs):
 
         # taining
-        train_loss, train_acc = train(args.batch_size, trainloader, net, device)
+        train_loss, train_acc = train(trainloader, net, args.batch_size, args.learning_rate, device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
@@ -81,10 +81,14 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
-    parser.add_argument('--epochs', type=int, default=10)
+    parser.add_argument('--num_classes', type=int, default=10)
+    parser.add_argument('--epochs', type=int, default=2)
     parser.add_argument('--batch_size', type=int, default=4)
+    parser.add_argument('--learning_rate', type=float, default=0.0001)
+
     #parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
 
-    #main(args)
-    finetuning2(args.dataset_dir)
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+    main(args)
+    #finetuning(args.dataset_dir)

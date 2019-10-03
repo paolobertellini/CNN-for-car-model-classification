@@ -4,11 +4,17 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 import torch
+import time
+import copy
 
-def train(batch_size, trainloader, net, device):
+
+def train(trainloader, net, batch_size, learning_rate, device):
+
+    best_model_wts = copy.deepcopy(net.state_dict())
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+    net.train()  # Set model to training mode
 
     epoch_items = 0
     epoch_corrects = 0
@@ -34,9 +40,10 @@ def train(batch_size, trainloader, net, device):
         loss.backward()
         optimizer.step()
 
+        # statistics
         epoch_losses.append(loss.item())
-
         epoch_avg_loss = np.asarray(epoch_losses).mean()
         epoch_acc = 100 * epoch_corrects / epoch_items
 
+    net.load_state_dict(best_model_wts)
     return epoch_avg_loss, epoch_acc

@@ -14,14 +14,12 @@ from tqdm import tqdm
 import copy
 from dataset import CarDataset
 
-
-
 def train_model(model, device, trainloader, criterion, optimizer, num_epochs=25):
 
     since = time.time()
     val_acc_history = []
     best_model_wts = copy.deepcopy(model.state_dict())
-    best_acc = 0.0
+
 
     for epoch in range(num_epochs):
 
@@ -150,10 +148,10 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
     return model_ft, input_size
 
 
-def finetuning2(data_dir):
+def finetuning(data_dir):
 
     # Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]
-    model_name = "alexnet"
+    model_name = "vgg"
     num_classes = 10
     batch_size = 4
     num_epochs = 2
