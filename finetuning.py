@@ -10,28 +10,11 @@ from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 import time
 import os
-import tqdm
+from tqdm import tqdm
 import copy
 from dataset import CarDataset
-print("PyTorch Version: ",torch.__version__)
-print("Torchvision Version: ",torchvision.__version__)
 
 
-'''The ``train_model`` function handles the training and validation of a
-given model. As input, it takes a PyTorch model, a dictionary of
-dataloaders, a loss function, an optimizer, a specified number of epochs
-to train and validate for, and a boolean flag for when the model is an
-Inception model. The *is_inception* flag is used to accomodate the
-*Inception v3* model, as that architecture uses an auxiliary output and
-the overall model loss respects both the auxiliary output and the final
-output, as described
-`here <https://discuss.pytorch.org/t/how-to-optimize-inception-model-with-auxiliary-classifiers/7958>`__.
-The function trains for the specified number of epochs and after each
-epoch runs a full validation step. It also keeps track of the best
-performing model (in terms of validation accuracy), and at the end of
-training returns the best performing model. After each epoch, the
-training and validation accuracies are printed.
-'''
 
 def train_model(model, device, trainloader, criterion, optimizer, num_epochs=25):
 
@@ -46,66 +29,48 @@ def train_model(model, device, trainloader, criterion, optimizer, num_epochs=25)
         print(f"Epoch {epoch}/{num_epochs}")
         print('-' * 10)
 
-        # Each epoch has a training and validation phase
-
         model.train()  # Set model to training mode
-        running_loss = 0.0
-        running_corrects = 0
+        epoch_losses = []
+        epoch_items = 0
+        epoch_corrects = 0
 
         # Iterate over data.
-        for batch in trainloader:
+        for batch in tqdm(trainloader, total=len(trainloader)):
 
             inputs = batch['image']
             inputs = inputs.float().to(device)
             labels = batch['idx'].to(device)
 
-            # zero the parameter gradients
-            optimizer.zero_grad()
-
-            # forward
-            # track history if only in train
-
-            # Get model outputs and calculate loss
-            # Special case for inception because in training it has an auxiliary output. In train
-            #   mode we calculate the loss by summing the final output and the auxiliary output
-            #   but in testing we only consider the final output.
-            # From https://discuss.pytorch.org/t/how-to-optimize-inception-model-with-auxiliary-classifiers/7958
             outputs = model(inputs)
-            loss = criterion(outputs, labels)
-
             _, preds = torch.max(outputs, 1)
 
-            # backward + optimize only if in training phase
+
+            for item in range(4):
+                label = labels[item]
+                epoch_items += 1
+                if (preds.data[item] == label):
+                    epoch_corrects += 1
+
+            optimizer.zero_grad()
+            loss = criterion(outputs, labels)
+
             loss.backward()
             optimizer.step()
 
             # statistics
-            running_loss += loss.item() * inputs.size(0)
-            running_corrects += torch.sum(preds == labels.data)
-            print(f"Running loss: {running_loss} running corrects: {running_corrects}")
-            epoch_loss = running_loss / len(trainloader.dataset)
-            epoch_acc = running_corrects.double() / len(trainloader.dataset)
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format('training', epoch_loss, epoch_acc))
+            epoch_losses.append(loss.item())
+            epoch_avg_loss = np.asarray(epoch_losses).mean()
+            epoch_acc = 100 * epoch_corrects / epoch_items
 
-        #print()
+        print(f"EPOCH {epoch}: [TRAINING loss: {epoch_avg_loss:.5f} acc: {epoch_acc:.2f}%]")
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(time_elapsed // 60, time_elapsed % 60))
-    print('Best val Acc: {:4f}'.format(best_acc))
 
     # load best model weights
     model.load_state_dict(best_model_wts)
     return model, val_acc_history
 
-
-'''This helper function sets the ``.requires_grad`` attribute of the
-parameters in the model to False when we are feature extracting. By
-default, when we load a pretrained model all of the parameters have
-``.requires_grad=True``, which is fine if we are training from scratch
-or finetuning. However, if we are feature extracting and only want to
-compute gradients for the newly initialized layer then we want all of
-the other parameters to not require gradients. This will make more sense
-later.'''
 
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
@@ -184,25 +149,18 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
 
     return model_ft, input_size
 
+
 def finetuning2(data_dir):
 
     # Models to choose from [resnet, alexnet, vgg, squeezenet, densenet, inception]
-    model_name = "squeezenet"
+    model_name = "alexnet"
     num_classes = 10
     batch_size = 4
-    num_epochs = 1
-
-    # Flag for feature extracting. When False, we finetune the whole model,
-    #   when True we only update the reshaped layer params
+    num_epochs = 2
     feature_extract = True
 
     model_ft, input_size = initialize_model(model_name, num_classes, feature_extract, use_pretrained=True)
-
-    # Print the model we just instantiated
     print(model_ft)
-
-    # Data augmentation and normalization for training
-    # Just normalization for validation
     data_transforms = {
         'train': transforms.Compose([
             transforms.RandomResizedCrop(input_size),
@@ -213,7 +171,6 @@ def finetuning2(data_dir):
 
     print("Initializing Datasets and Dataloaders...")
 
-
     trainset = CarDataset(dataset_dir=data_dir / 'train',
                               transform=data_transforms['train'])
     trainloader = torch.utils.data.DataLoader(trainset, batch_size=batch_size, shuffle=True)
@@ -221,15 +178,8 @@ def finetuning2(data_dir):
 
     # Detect if we have a GPU available
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-    # Send the model to GPU
     model_ft = model_ft.to(device)
 
-    #   the parameters to be optimized/updated in this run. If we are
-    #  finetuning we will be updating all parameters. However, if we are
-    #  doing feature extract method, we will only update the parameters
-    #  that we have just initialized, i.e. the parameters with requires_grad
-    #  is True.
     params_to_update = model_ft.parameters()
     print("Params to learn:")
     if feature_extract:
@@ -243,10 +193,7 @@ def finetuning2(data_dir):
             if param.requires_grad == True:
                 print("\t", name)
 
-    # Observe that all parameters are being optimized
     optimizer_ft = optim.SGD(params_to_update, lr=0.001, momentum=0.9)
-
-    # Setup the loss fxn
     criterion = nn.CrossEntropyLoss()
 
     # Train and evaluate
@@ -261,11 +208,6 @@ def finetuning2(data_dir):
     _, scratch_hist = train_model(scratch_model, device, trainloader, scratch_criterion, scratch_optimizer,
                                   num_epochs=num_epochs)
 
-    # Plot the training curves of validation accuracy vs. number
-    #  of training epochs for the transfer learning method and
-    #  the model trained from scratch
-    ohist = []
-    shist = []
 
     ohist = [h.cpu().numpy() for h in hist]
     shist = [h.cpu().numpy() for h in scratch_hist]
