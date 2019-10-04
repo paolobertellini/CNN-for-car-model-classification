@@ -12,7 +12,7 @@ def train(trainloader, net, batch_size, criterion, optimizer, device):
     #best_model_wts = copy.deepcopy(net.state_dict())
 
 
-    net.train()  # Set model to training mode
+    #net.train()  # Set model to training mode
 
     epoch_items = 0
     epoch_corrects = 0
@@ -24,6 +24,7 @@ def train(trainloader, net, batch_size, criterion, optimizer, device):
         inputs = inputs.float().to(device)
         labels = batch['idx'].to(device)
 
+        optimizer.zero_grad()
         outputs = net(inputs)
         _, predicted = torch.max(outputs.data, 1)
 
@@ -35,7 +36,7 @@ def train(trainloader, net, batch_size, criterion, optimizer, device):
 
 
         loss = criterion(outputs, labels)
-        optimizer.zero_grad()
+
         loss.backward()
         optimizer.step()
 
