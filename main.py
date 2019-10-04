@@ -1,21 +1,33 @@
+
 import argparse
 from pathlib import Path
+import csv
 
+import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
-import torch
-from no_pretreined import no_pretreined
-from pretreined import pretreined
-from dataset import CarDataset
 
-from model import Small
-from training import train
-from testing import test
-from finetuning import initialize_model
 import plots
+from dataset import CarDataset
+from finetuning import initialize_model
+from testing import test
+from training import train
 
+def read(filename):
+    list = []
+    with open('data/' + filename, 'rt')as f:
+        data = csv.reader(f)
+        for row in data:
+            list.append(float(row[0]))
+    return list
 
-#from finetunig import initialize_model
+def write(filename, list):
+    with open('data/' + filename, "w") as output:
+        writer = csv.writer(output, lineterminator='\n')
+        for val in list:
+            writer.writerow([val])
 
 def main(args):
 
@@ -99,18 +111,21 @@ def main(args):
     true_list = []
     predict_list = []
 
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=args.learning_rate, momentum=0.9)
+
     for epoch in range(args.epochs):
 
         print(f"EPOCH {epoch+1}/{args.epochs}")
         # taining
         print("Training")
-        train_loss, train_acc = train(trainloader, model, args.batch_size, args.learning_rate, device)
+        train_loss, train_acc = train(trainloader, model, args.batch_size, criterion, optimizer, device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
         # test
         print("Testing")
-        test_loss, test_acc, true, predict = test(args.batch_size, testloader, model, device)
+        test_loss, test_acc, true, predict = test(testloader, model, args.batch_size, criterion, device)
         test_losses.append(test_loss)
         test_accs.append(test_acc)
         true_list += true
@@ -124,12 +139,15 @@ def main(args):
     print(f"TRAINING AND TESTING FINISHED")
     print('-' * 100)
     print(f"TRAIN LOSS HISTORY: {train_losses}")
+    write('train_loss.csv', train_losses)
+    p = read('train_loss.csv')
+
     print(f"TRAIN ACCURACY HISTORY: {train_accs}")
     print('-' * 100)
     print(f"TEST LOSS HISTORY: {test_losses}")
     print(f"TEST ACCURACY HISTORY: {test_accs}")
     print('-' * 100)
-    plots.printPlots(classes, args.dataset_dir, args.epochs, train_losses, train_accs, test_losses, test_accs,
+    plots.printPlots(classes, args.dataset_dir, args.epochs, p, train_accs, test_losses, test_accs,
                      predict_list, true_list)
 
 
@@ -140,7 +158,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('dataset_dir', type=Path)
     parser.add_argument('--num_classes', type=int, default=10)
-    parser.add_argument('--epochs', type=int, default=2)
+    parser.add_argument('--epochs', type=int, default=3)
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--learning_rate', type=float, default=0.0001)
 
@@ -148,4 +166,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     main(args)
-

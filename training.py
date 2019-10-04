@@ -1,19 +1,17 @@
 
 from tqdm import tqdm
-import torch.nn as nn
-import torch.optim as optim
+
 import numpy as np
 import torch
 import time
 import copy
 
 
-def train(trainloader, net, batch_size, learning_rate, device):
+def train(trainloader, net, batch_size, criterion, optimizer, device):
 
-    best_model_wts = copy.deepcopy(net.state_dict())
+    #best_model_wts = copy.deepcopy(net.state_dict())
 
-    criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(net.parameters(), lr=learning_rate, momentum=0.9)
+
     net.train()  # Set model to training mode
 
     epoch_items = 0
@@ -35,15 +33,16 @@ def train(trainloader, net, batch_size, learning_rate, device):
             if (predicted.data[item] == label):
                 epoch_corrects += 1
 
-        optimizer.zero_grad()
+
         loss = criterion(outputs, labels)
+        optimizer.zero_grad()
         loss.backward()
         optimizer.step()
 
         # statistics
         epoch_losses.append(loss.item())
-        epoch_avg_loss = np.asarray(epoch_losses).mean()
-        epoch_acc = 100 * epoch_corrects / epoch_items
 
-    net.load_state_dict(best_model_wts)
+    epoch_avg_loss = np.asarray(epoch_losses).mean()
+    epoch_acc = 100 * epoch_corrects / epoch_items
+    #net.load_state_dict(best_model_wts)
     return epoch_avg_loss, epoch_acc

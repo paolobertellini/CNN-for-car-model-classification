@@ -5,22 +5,16 @@ from tqdm import tqdm
 import numpy as np
 
 
-def test(batch_size, testloader, net, device):
+def test(testloader, net, batch_size, criterion, device):
 
-    # total_losses = []
-    # total_accs = []
-    # total_items = list(1. for i in range(10))
-    # total_corrects = list(1. for i in range(10))
     true = []
     predict = []
-
-    criterion = nn.CrossEntropyLoss()
 
     epoch_items = list(0. for i in range(10))
     epoch_corrects = list(0. for i in range(10))
     epoch_losses = list(0. for i in range(10))
 
-    for i, batch in tqdm(enumerate(testloader), total=len(testloader)):
+    for batch in tqdm(testloader, total=len(testloader)):
 
         images = batch['image']
         images = images.float().to(device)
@@ -40,11 +34,11 @@ def test(batch_size, testloader, net, device):
             if predicted == label:
                 epoch_corrects[label] += 1
 
-            loss = criterion(outputs, labels)
-            epoch_losses.append(loss.item())
+        loss = criterion(outputs, labels)
+        epoch_losses.append(loss.item())
 
-        epoch_avg_loss = np.asarray(epoch_losses).mean()
-        epoch_acc = 100 * sum(epoch_corrects) / sum(epoch_items)
+    epoch_avg_loss = np.asarray(epoch_losses).mean()
+    epoch_acc = 100 * sum(epoch_corrects) / sum(epoch_items)
 
 
     #

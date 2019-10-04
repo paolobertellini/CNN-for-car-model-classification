@@ -1,5 +1,6 @@
 
 import matplotlib.patches as mpatches
+from pathlib import Path
 from dataset import importMeta
 import numpy as np
 import itertools
@@ -24,11 +25,11 @@ def printPlots(classes, dataset_dir, epochs, train_loss, train_acc, test_loss, t
     #datasetDistribution(test_classes, classes, 'Testset')
     datasetComparison(classes, train_classes, test_classes)
 
-    #lossHistory('Train', train_loss)
-    #accuracyHistory('Train', train_acc)
+    lossHistory('Train', train_loss)
+    accuracyHistory('Train', train_acc)
 
-    #lossHistory('Test', test_loss)
-    #accuracyHistory('Test', test_acc)
+    lossHistory('Test', test_loss)
+    accuracyHistory('Test', test_acc)
 
     #netAccuracy(classes, class_acc)
     lossComparison(train_loss, test_loss, epochs)
@@ -41,7 +42,7 @@ def datasetDistribution(labels, classes, title):
     plt.bar(classes, labels)
     plt.xticks(rotation=30, ha='right')
     plt.title(f"{title} distribution")
-    plt.savefig('dataset_distribution.png')
+    plt.savefig('plots/dataset_distribution.png')
     plt.show()
 
 def datasetComparison(classes, train, test):
@@ -66,7 +67,7 @@ def datasetComparison(classes, train, test):
     plt.xticks(r0, classes)
     plt.xticks(rotation=90, ha='right')
     plt.legend()
-    plt.savefig('dataset_comparison')
+    plt.savefig('plots/dataset_comparison')
     plt.show()
 
 
@@ -75,7 +76,7 @@ def lossHistory(name, losses):
     plt.title(name + ' loss history', fontweight='bold')
     plt.xlabel('Epochs', fontweight='bold')
     plt.ylabel('Loss', fontweight='bold')
-    plt.savefig(name + '_loss_history.png')
+    plt.savefig('plots/' + 'loss_' + name + '.png')
     plt.show()
 
 def lossComparison(train_loss, test_loss, epochs):
@@ -86,7 +87,7 @@ def lossComparison(train_loss, test_loss, epochs):
     plt.xlabel('Epochs', fontweight='bold')
     plt.ylabel('Loss', fontweight='bold')
     plt.legend(handles=[trainig, testing])
-    plt.savefig('loss_comparison.png')
+    plt.savefig('plots/' +'loss_comparison.png')
     plt.show()
 
 def accComparison(train_acc, test_acc, epochs):
@@ -98,7 +99,7 @@ def accComparison(train_acc, test_acc, epochs):
     plt.ylabel('Accuracy', fontweight='bold')
     plt.ylim(0, 100)
     plt.legend(handles=[trainig, testing])
-    plt.savefig('acc_comparison.png')
+    plt.savefig('plots/' +'acc_comparison.png')
     plt.show()
 
 def accuracyHistory(name, accs):
@@ -106,7 +107,7 @@ def accuracyHistory(name, accs):
     plt.title(name + ' accuracy history', fontweight='bold')
     plt.xlabel('Epochs', fontweight='bold')
     plt.ylabel('Accuracy', fontweight='bold')
-    plt.savefig(name + '_acc_history.png')
+    plt.savefig('plots/' + 'acc_' + name + '.png')
     plt.show()
 
 def netAccuracy(classes, accuracy):
