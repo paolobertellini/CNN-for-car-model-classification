@@ -5,7 +5,7 @@ from tqdm import tqdm
 import numpy as np
 
 
-def test(testloader, net, batch_size, criterion, device):
+def test(testloader, net, batch_size, criterion, finetuning, device):
 
     true = []
     predict = []
@@ -13,6 +13,9 @@ def test(testloader, net, batch_size, criterion, device):
     epoch_items = list(0. for i in range(10))
     epoch_corrects = list(0. for i in range(10))
     epoch_losses = list(0. for i in range(10))
+
+    if finetuning:
+        net.eval()
 
     for batch in tqdm(testloader, total=len(testloader)):
 

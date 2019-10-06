@@ -15,10 +15,10 @@ from dataset import CarDataset
 from finetuning import initialize_model
 from testing import test
 from training import train
-from main import write, read
+import main
 
 
-def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, num_classes, feature_extract, use_pretrained, save_file, print_plots):
+def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, num_classes, feature_extract, use_pretrained, save_file, print_plots, finetuning):
 
     # vehicles classes
     classes = ('Full size car', 'Mid size car', 'Cross over', 'Van',
@@ -59,6 +59,7 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
 
+
     # dataset
     print('-' * 100)
     print(f"IMPORTING DATASET...")
@@ -94,20 +95,20 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         print(f"EPOCH {epoch + 1}/{epochs}")
         # taining
         print("Training")
-        train_loss, train_acc = train(trainloader, model, batch_size, criterion, optimizer, device)
+        train_loss, train_acc = train(trainloader, model, batch_size, criterion, optimizer, finetuning, device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
         # test
         print("Testing")
-        test_loss, test_acc, true, predict = test(testloader, model, batch_size, criterion2, device)
+        test_loss, test_acc, true, predict = test(testloader, model, batch_size, criterion2, finetuning, device)
         test_losses.append(test_loss)
         test_accs.append(test_acc)
         true_list += true
         predict_list += predict
 
         print(f"EPOCH {epoch + 1}: [TRAINING loss: {train_loss:.5f} acc: {train_acc:.2f}%]"
-              ,f"[TESTING loss: {test_loss:.5f} acc: {test_acc:.2f} %]")
+              ,f"[TESTING loss: {test_loss:.5f} acc: {test_acc:.2f}%]")
         print('-' * 100)
 
     print('-' * 100)
@@ -131,14 +132,15 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     d = datetime.datetime.now()
     date_id = str(getattr(d, 'year')) + '-' + str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(
         getattr(d, 'hour')) + ':' + str(getattr(d, 'minute'))
-    id = 'data/' + model_name + '__' + date_id + '__' + str(epochs) + 'e__'
+    id = model_name + '__' + date_id + '__' + str(epochs) + 'e__'
 
     if save_file:
         print("Saving files...")
-        write(id + 'train_loss.csv', train_losses)
-        write(id + 'train_acc.csv', train_accs)
-        write(id + 'test_loss.csv', test_losses)
-        write(id + 'test_acc.csv', test_accs)
+        id_save = 'data/' + id
+        main.write('data/' + id + 'train_loss.csv', train_losses)
+        main.write('data/' + id + 'train_acc.csv', train_accs)
+        main.write('data/' + id + 'test_loss.csv', test_losses)
+        main.write('data/' + id + 'test_acc.csv', test_accs)
         print("FILES SAVED")
         print('-' * 100)
 

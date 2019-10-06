@@ -31,7 +31,7 @@ def write(filename, list):
         for val in list:
             writer.writerow([val])
 
-def main(args):
+# def main(args):
 
     # # conv net model
     # # Models to choose from [mini, paolo, resnet, alexnet, vgg, squeezenet, densenet, inception]
@@ -148,7 +148,7 @@ def main(args):
     # print('-' * 100)
     # print(f"TEST LOSS HISTORY: {test_losses}")
     # print(f"TEST ACCURACY HISTORY: {test_accs}")
-    print('-' * 100)
+    # print('-' * 100)
     # plots.printPlots(classes, args.dataset_dir, args.epochs, p, train_accs, test_losses, test_accs,
     #                  predict_list, true_list)
     #
@@ -170,28 +170,58 @@ if __name__ == '__main__':
     print(f"Using {device}..")
 
     configuration.execute(device=device,
-                          model_name='paolo',
+                          model_name='vgg',
                           dataset_dir=args.dataset_dir / 'complete',
                           batch_size=4,
-                          epochs=10,
+                          epochs=100,
+                          learning_rate=0.001,
+                          num_classes=10,
+                          feature_extract=True,
+                          use_pretrained=True,
+                          save_file=True,
+                          print_plots=True,
+                          finetuning=True)
+
+    configuration.execute(device=device,
+                          model_name='vgg',
+                          dataset_dir=args.dataset_dir / 'complete',
+                          batch_size=4,
+                          epochs=100,
                           learning_rate=0.001,
                           num_classes=10,
                           feature_extract=False,
                           use_pretrained=True,
                           save_file=True,
-                          print_plots=True)
-
-    # paolo working
+                          print_plots=True,
+                          finetuning=False)
 
     # configuration.execute(device=device,
     #                       model_name='paolo',
     #                       dataset_dir=args.dataset_dir / 'complete',
     #                       batch_size=4,
-    #                       epochs=10,
+    #                       epochs=200,
     #                       learning_rate=0.001,
     #                       num_classes=10,
     #                       feature_extract=False,
     #                       use_pretrained=True,
     #                       save_file=True,
-    #                       print_plots=True)
+    #                       print_plots=True,
+    #                       finetuning=False)
+
+    # configuration.execute(device=device,
+    #                       model_name='vgg',
+    #                       dataset_dir=args.dataset_dir / 'complete',
+    #                       batch_size=4,
+    #                       epochs=100,
+    #                       learning_rate=0.0001,
+    #                       num_classes=10,
+    #                       feature_extract=False,
+    #                       use_pretrained=True,
+    #                       save_file=True,
+    #                       print_plots=True,
+    #                       finetuning=False)
+
+    # paolo working
+
+
     #main(args)

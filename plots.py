@@ -8,6 +8,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
+from main import read, write
 
 def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_loss, test_acc, predict, true):
 
@@ -38,6 +39,33 @@ def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_los
     conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
     conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 
+def printPlotById(id, dataset_dir, classes):
+    train_labels = importMeta(dataset_dir / 'train')
+    train_classes = list(0. for i in range(10))
+    for l in train_labels:
+        train_classes[l] += 1
+
+    test_labels = importMeta(dataset_dir / 'test')
+    test_classes = list(0. for i in range(10))
+    for l in test_labels:
+        test_classes[l] += 1
+
+    # datasetDistribution(train_classes, classes, 'Trainset')
+    # datasetDistribution(test_classes, classes, 'Testset')
+    datasetComparison(classes, train_classes, test_classes)
+
+    lossHistory(id, 'Train', read('data/' + id + 'train_loss.csv'))
+    # accuracyHistory(id, 'Train', train_acc)
+    #
+    # lossHistory(id, 'Test', test_loss)
+    # accuracyHistory(id, 'Test', test_acc)
+    #
+    # # netAccuracy(classes, class_acc)
+    # lossComparison(id, train_loss, test_loss, epochs)
+    # accComparison(id, train_acc, test_acc, epochs)
+    #
+    # conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
+    # conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 
 def datasetDistribution(model_name, labels, classes, title):
     plt.bar(classes, labels)
@@ -80,6 +108,15 @@ def lossHistory(id, name, losses):
     plt.savefig('plots/' + id + '_loss_' + name +'.png')
     plt.show()
 
+def accuracyHistory(id, name, accs):
+    plt.plot(accs, linewidth=4)
+    plt.title(name + ' accuracy history', fontweight='bold')
+    plt.xlabel('Epochs', fontweight='bold')
+    plt.ylabel('Accuracy', fontweight='bold')
+    plt.savefig('plots/' + id + '_acc_' + name +'.png')
+    plt.show()
+
+
 def lossComparison(id, train_loss, test_loss, epochs):
     trainig = mpatches.Patch(color='royalblue', label='Training')
     testing = mpatches.Patch(color='orange', label='Testing')
@@ -103,13 +140,7 @@ def accComparison(id, train_acc, test_acc, epochs):
     plt.savefig('plots/' + id + '_acc_comparison.png')
     plt.show()
 
-def accuracyHistory(id, name, accs):
-    plt.plot(accs, linewidth=4)
-    plt.title(name + ' accuracy history', fontweight='bold')
-    plt.xlabel('Epochs', fontweight='bold')
-    plt.ylabel('Accuracy', fontweight='bold')
-    plt.savefig('plots/' + id + '_acc_' + name +'.png')
-    plt.show()
+
 
 
 def conf_matrix1(id, y_true, y_pred, classes, labels, ymap=None, figsize=(10,10)):
@@ -142,7 +173,7 @@ def conf_matrix1(id, y_true, y_pred, classes, labels, ymap=None, figsize=(10,10)
     cm.columns.name = 'Predicted'
     fig, ax = plt.subplots(figsize=figsize)
     sns.heatmap(cm, annot=annot, fmt='', ax=ax, cmap="Blues")
-    plt.savefig('lots/' + id + '_matrix.png')
+    plt.savefig('plots/' + id + '_matrix.png')
     plt.show()
 
 def conf_matrix2(id, y_true, y_pred, classes, labels, cmap=plt.cm.Blues):
