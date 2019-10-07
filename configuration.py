@@ -1,21 +1,16 @@
-
-import argparse
-from pathlib import Path
-import csv
-
-import torch
 import datetime
+
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
 from torchvision import transforms
 
+import main
 import plots
 from dataset import CarDataset
 from finetuning import initialize_model
 from testing import test
 from training import train
-import main
 
 
 def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, num_classes, feature_extract, use_pretrained, save_file, print_plots, finetuning):
@@ -121,13 +116,13 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     print(f"TRAIN ACCURACY HISTORY: {train_accs}")
     print('-' * 100)
 
-    # # test
-    # print('-' * 100)
-    # print(f"TEST LOSS HISTORY: {test_losses}")
-    # print('-' * 100)
-    # print(f"TEST ACCURACY HISTORY: {test_accs}")
-    # print('-' * 100)
-    # print('-' * 100)
+    # test
+    print('-' * 100)
+    print(f"TEST LOSS HISTORY: {test_losses}")
+    print('-' * 100)
+    print(f"TEST ACCURACY HISTORY: {test_accs}")
+    print('-' * 100)
+    print('-' * 100)
 
     d = datetime.datetime.now()
     date_id = str(getattr(d, 'year')) + '-' + str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(

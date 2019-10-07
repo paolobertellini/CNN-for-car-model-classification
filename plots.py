@@ -1,14 +1,16 @@
 
-import matplotlib.patches as mpatches
-from pathlib import Path
-from dataset import importMeta
-import numpy as np
 import itertools
-import pandas as pd
+
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import seaborn as sns
 from sklearn.metrics import confusion_matrix
-from main import read, write
+
+from dataset import importMeta
+from main import read
+
 
 def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_loss, test_acc, predict, true):
 
