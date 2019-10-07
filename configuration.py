@@ -1,5 +1,6 @@
 import datetime
 
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader
@@ -31,15 +32,16 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     print('-' * 100)
     print("PARAMS TO LEARN")
     print('-' * 100)
+
     if feature_extract:
         params_to_update = []
         for name, param in model.named_parameters():
-            if param.requires_grad == True:
+            if param.requires_grad:
                 params_to_update.append(param)
                 print("\t", name)
     else:
         for name, param in model.named_parameters():
-            if param.requires_grad == True:
+            if param.requires_grad:
                 print("\t", name)
 
     # image transformations
@@ -48,12 +50,22 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         transforms.ToTensor(),
         transforms.Normalize((0.6242, 0.6232, 0.5952), (0.8963, 0.8787, 0.8833))])
 
-    transform = transforms.Compose([
-        transforms.RandomResizedCrop(input_size),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])])
-
+    transform_dict = {
+        'train': transforms.Compose(
+            [
+                transforms.RandomResizedCrop(input_size),
+                transforms.RandomHorizontalFlip(),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ]),
+        'eval': transforms.Compose(
+            [
+                transforms.Resize(input_size),
+                transforms.CenterCrop(input_size),
+                transforms.ToTensor(),
+                transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+            ])
+    }
 
     # dataset
     print('-' * 100)
@@ -61,12 +73,12 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     print('-' * 100)
 
     trainset = CarDataset(dataset_dir=dataset_dir / 'train',
-                          transform=transform)
-    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True)
+                          transform=transform_dict['train'])
+    trainloader = DataLoader(trainset, batch_size=batch_size, shuffle=True, drop_last=True)
 
     testset = CarDataset(dataset_dir=dataset_dir / 'test',
-                         transform=transform)
-    testloader = DataLoader(testset, batch_size=batch_size, shuffle=True)
+                         transform=transform_dict['eval'])
+    testloader = DataLoader(testset, batch_size=batch_size, shuffle=True, drop_last=True)
 
     print('-' * 100)
     print(f"DATASET IMPORTED")
@@ -81,22 +93,24 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     predict_list = []
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
 
-    criterion2 = nn.CrossEntropyLoss()
-    optimizer2 = optim.SGD(model.parameters(), lr=learning_rate, momentum=0.9)
+    optimizer = optim.Adam(params_to_update, lr=learning_rate)
 
     for epoch in range(epochs):
         print(f"EPOCH {epoch + 1}/{epochs}")
-        # taining
+
+        # training
         print("Training")
-        train_loss, train_acc = train(trainloader, model, batch_size, criterion, optimizer, finetuning, device)
+        train_loss, train_acc = train(trainloader, model, batch_size, criterion, optimizer, device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
 
         # test
         print("Testing")
-        test_loss, test_acc, true, predict = test(testloader, model, batch_size, criterion2, finetuning, device)
+
+        with torch.no_grad():
+            test_loss, test_acc, true, predict = test(testloader, model, batch_size, criterion, device)
+
         test_losses.append(test_loss)
         test_accs.append(test_acc)
         true_list += true
@@ -151,4 +165,3 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     print("FINISH")
     print('-' * 100)
     print('-' * 100)
-

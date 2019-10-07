@@ -33,36 +33,35 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=4)
     parser.add_argument('--learning_rate', type=float, default=0.001)
 
-    #parser.add_argument('--device', choices=['cpu', 'cuda'], default='cpu')
     args = parser.parse_args()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Using {device}..")
 
     configuration.execute(device=device,
                           model_name='vgg',
-                          dataset_dir=args.dataset_dir / 'complete',
-                          batch_size=4,
+                          dataset_dir=args.dataset_dir,
+                          batch_size=args.batch_size,
                           epochs=101,
-                          learning_rate=0.0001,
+                          learning_rate=args.learning_rate,
                           num_classes=10,
                           feature_extract=True,
                           use_pretrained=True,
                           save_file=True,
                           print_plots=True,
                           finetuning=True)
-    #
-    configuration.execute(device=device,
-                          model_name='vgg',
-                          dataset_dir=args.dataset_dir / 'complete',
-                          batch_size=4,
-                          epochs=100,
-                          learning_rate=0.0001,
-                          num_classes=10,
-                          feature_extract=False,
-                          use_pretrained=True,
-                          save_file=True,
-                          print_plots=True,
-                          finetuning=False)
+    # #
+    # configuration.execute(device=device,
+    #                       model_name='vgg',
+    #                       dataset_dir=args.dataset_dir,
+    #                       batch_size=4,
+    #                       epochs=100,
+    #                       learning_rate=0.0001,
+    #                       num_classes=10,
+    #                       feature_extract=False,
+    #                       use_pretrained=True,
+    #                       save_file=True,
+    #                       print_plots=True,
+    #                       finetuning=False)
 
     # configuration.execute(device=device,
     #                       model_name='paolo',

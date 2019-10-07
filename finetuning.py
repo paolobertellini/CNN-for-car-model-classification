@@ -6,6 +6,7 @@ import torch.nn as nn
 from torchvision import models
 from model import Mini, Small
 
+
 def set_parameter_requires_grad(model, feature_extracting):
     if feature_extracting:
         for param in model.parameters():
