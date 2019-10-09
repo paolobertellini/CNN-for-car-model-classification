@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 import main
-import plots
+import plots_data
 from dataset import CarDataset
 from finetuning import initialize_model
 from testing import test
@@ -44,17 +44,10 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
             if param.requires_grad:
                 print("\t", name)
 
-    # image transformations
-    transform2 = transforms.Compose([
-        transforms.Resize((32, 32)),
-        transforms.ToTensor(),
-        transforms.Normalize((0.6242, 0.6232, 0.5952), (0.8963, 0.8787, 0.8833))])
-
     transform_dict = {
         'train': transforms.Compose(
             [
                 transforms.Resize(input_size),
-                # transforms.RandomResizedCrop(input_size),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -62,7 +55,6 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         'eval': transforms.Compose(
             [
                 transforms.Resize(input_size),
-                # transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
@@ -155,9 +147,9 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         print('-' * 100)
 
     if print_plots:
-        print("Printing plots...")
-        plots.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs, test_losses, test_accs,
-                         predict_list, true_list)
+        print("Printing plots_data...")
+        plots_data.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs, test_losses, test_accs,
+                              predict_list, true_list)
         print("PLOTS PRINTED AND SAVED")
         print('-' * 100)
 

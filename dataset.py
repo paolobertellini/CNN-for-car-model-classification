@@ -1,18 +1,17 @@
+from pathlib import Path
 
 import torch
 import yaml
 from PIL import Image
 from skimage import transform
 from torch.utils.data import Dataset
-from pathlib import Path
 
 
-def importMeta(dataset_dir):
+def import_meta(dataset_dir):
     labels = []
-    for meta in list((dataset_dir / 'meta').glob('*.yaml')):
-        f = open(meta)
-        dataMap = yaml.safe_load(f)
-        cad_idx = dataMap["cad_idx"]
+    for meta_f in list(sorted((dataset_dir / 'meta').glob('*.yaml'))):
+        with meta_f.open('r') as f:
+            cad_idx = yaml.safe_load(f)['cad_idx']
         labels.append(cad_idx)
     return labels
 
@@ -33,6 +32,7 @@ def calculate_img_stats_avg(loader):
     std /= nb_samples
     print (mean, std)
     return mean, std
+
 
 class Rescale(object):
 
@@ -78,7 +78,7 @@ class CarDataset(Dataset):
 
         self.dataset_dir = dataset_dir
         self.transform = transform
-        self.labels = importMeta(self.dataset_dir)
+        self.labels = import_meta(self.dataset_dir)
         print(f"Imported labels from {self.dataset_dir}")
 
     def __len__(self):
@@ -89,11 +89,7 @@ class CarDataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        name = ''
-        for i in range(6 - len(str(idx))):
-            name += '0'
-        name += str(idx)
-        img_name = name + '.png'
+        img_name = f'{idx:06d}.png'
 
         image = Image.open(self.dataset_dir / 'img' / img_name)
 

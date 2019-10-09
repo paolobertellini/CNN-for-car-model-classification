@@ -11,6 +11,7 @@ import torch
 import configuration
 from plots import printPlotById
 
+
 def read(filename):
     list = []
     with open('data/' + filename, 'rt')as f:
@@ -46,18 +47,6 @@ if __name__ == '__main__':
 
     # printPlotById('vgg19__2019-10-8__18_55__101e__', args.dataset_dir, classes)
 
-    # configuration.execute(device=device,
-    #                       model_name='vgg19',
-    #                       dataset_dir=args.dataset_dir,
-    #                       batch_size=args.batch_size,
-    #                       epochs=101,
-    #                       learning_rate=0.0001,
-    #                       num_classes=10,
-    #                       feature_extract=False,
-    #                       use_pretrained=True,
-    #                       save_file=True,
-    #                       print_plots=True)
-
     configuration.execute(device=device,
                           model_name='vgg19',
                           dataset_dir=args.dataset_dir,
@@ -65,7 +54,7 @@ if __name__ == '__main__':
                           epochs=20,
                           learning_rate=0.0002,
                           num_classes=10,
-                          feature_extract=False,
+                          feature_extract=True,
                           use_pretrained=True,
                           save_file=True,
                           print_plots=True)
