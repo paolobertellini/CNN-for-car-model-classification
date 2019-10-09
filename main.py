@@ -1,4 +1,7 @@
 
+import os
+os.environ['OMP_NUM_THREADS'] = "1"
+
 import argparse
 import csv
 from pathlib import Path
@@ -6,7 +9,7 @@ from pathlib import Path
 import torch
 
 import configuration
-
+from plots import printPlotById
 
 def read(filename):
     list = []
@@ -31,61 +34,38 @@ if __name__ == '__main__':
     parser.add_argument('--num_classes', type=int, default=10)
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batch_size', type=int, default=4)
-    parser.add_argument('--learning_rate', type=float, default=0.001)
+    parser.add_argument('--learning_rate', type=float, default=0.0005)
 
     args = parser.parse_args()
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     print(f"Using {device}..")
 
+    # vehicles classes
+    classes = ('Full size car', 'Mid size car', 'Cross over', 'Van',
+               'Coupe', 'Family car', 'Beetle', 'Single seater', 'City car', 'Pick up')
+
+    # printPlotById('vgg19__2019-10-8__18_55__101e__', args.dataset_dir, classes)
+
+    # configuration.execute(device=device,
+    #                       model_name='vgg19',
+    #                       dataset_dir=args.dataset_dir,
+    #                       batch_size=args.batch_size,
+    #                       epochs=101,
+    #                       learning_rate=0.0001,
+    #                       num_classes=10,
+    #                       feature_extract=False,
+    #                       use_pretrained=True,
+    #                       save_file=True,
+    #                       print_plots=True)
+
     configuration.execute(device=device,
-                          model_name='vgg',
+                          model_name='vgg19',
                           dataset_dir=args.dataset_dir,
                           batch_size=args.batch_size,
-                          epochs=101,
-                          learning_rate=args.learning_rate,
+                          epochs=20,
+                          learning_rate=0.0002,
                           num_classes=10,
-                          feature_extract=True,
+                          feature_extract=False,
                           use_pretrained=True,
                           save_file=True,
-                          print_plots=True,
-                          finetuning=True)
-    # #
-    # configuration.execute(device=device,
-    #                       model_name='vgg',
-    #                       dataset_dir=args.dataset_dir,
-    #                       batch_size=4,
-    #                       epochs=100,
-    #                       learning_rate=0.0001,
-    #                       num_classes=10,
-    #                       feature_extract=False,
-    #                       use_pretrained=True,
-    #                       save_file=True,
-    #                       print_plots=True,
-    #                       finetuning=False)
-
-    # configuration.execute(device=device,
-    #                       model_name='paolo',
-    #                       dataset_dir=args.dataset_dir / 'complete',
-    #                       batch_size=4,
-    #                       epochs=300,
-    #                       learning_rate=0.001,
-    #                       num_classes=10,
-    #                       feature_extract=False,
-    #                       use_pretrained=True,
-    #                       save_file=True,
-    #                       print_plots=True,
-    #                       finetuning=False)
-
-    # configuration.execute(device=device,
-    #                       model_name='vgg',
-    #                       dataset_dir=args.dataset_dir / 'complete',
-    #                       batch_size=4,
-    #                       epochs=100,
-    #                       learning_rate=0.0001,
-    #                       num_classes=10,
-    #                       feature_extract=False,
-    #                       use_pretrained=True,
-    #                       save_file=True,
-    #                       print_plots=True,
-    #                       finetuning=False)
-
+                          print_plots=True)

@@ -4,12 +4,20 @@ import itertools
 import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
+import csv
 import pandas as pd
 # import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
 from dataset import importMeta
-from main import read
+
+def read(filename):
+    list = []
+    with open('data/' + filename, 'rt')as f:
+        data = csv.reader(f)
+        for row in data:
+            list.append(float(row[0]))
+    return list
 
 
 def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_loss, test_acc, predict, true):
@@ -38,8 +46,8 @@ def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_los
     lossComparison(id, train_loss, test_loss, epochs)
     accComparison(id, train_acc, test_acc, epochs)
 
-    # conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
-    # conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
+    conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
+    conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 
 def printPlotById(id, dataset_dir, classes):
     train_labels = importMeta(dataset_dir / 'train')
@@ -54,18 +62,22 @@ def printPlotById(id, dataset_dir, classes):
 
     # datasetDistribution(train_classes, classes, 'Trainset')
     # datasetDistribution(test_classes, classes, 'Testset')
-    datasetComparison(classes, train_classes, test_classes)
+    # datasetComparison(classes, train_classes, test_classes)
 
-    lossHistory(id, 'Train', read('data/' + id + 'train_loss.csv'))
-    # accuracyHistory(id, 'Train', train_acc)
-    #
-    # lossHistory(id, 'Test', test_loss)
-    # accuracyHistory(id, 'Test', test_acc)
-    #
-    # # netAccuracy(classes, class_acc)
-    # lossComparison(id, train_loss, test_loss, epochs)
-    # accComparison(id, train_acc, test_acc, epochs)
-    #
+    train_losses = read(id + 'train_loss.csv')
+    test_losses = read(id + 'test_loss.csv')
+
+    train_acc = read(id + 'train_acc.csv')
+    test_acc = read(id + 'test_acc.csv')
+
+    lossHistory(id, 'Train', train_losses)
+    lossHistory(id, 'Test', test_losses)
+    accuracyHistory(id, 'Train', train_acc)
+    accuracyHistory(id, 'Test', test_acc)
+
+    lossComparison(id, train_losses, test_losses, 101)
+    accComparison(id, train_acc, test_acc, 101)
+
     # conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
     # conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 

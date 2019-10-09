@@ -14,7 +14,7 @@ from testing import test
 from training import train
 
 
-def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, num_classes, feature_extract, use_pretrained, save_file, print_plots, finetuning):
+def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, num_classes, feature_extract, use_pretrained, save_file, print_plots):
 
     # vehicles classes
     classes = ('Full size car', 'Mid size car', 'Cross over', 'Van',
@@ -23,9 +23,9 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     model, input_size = initialize_model(model_name, num_classes, feature_extract, use_pretrained)
     model = model.to(device)
     print('-' * 100)
-    print(f"MODEL ARCHITECTURE [{model_name}]")
-    print('-' * 100)
-    print(model)
+    print(f"MODEL ARCHITECTURE [{model_name}] [feature extract: {feature_extract}, use_pretrained: {use_pretrained} learning rate: {learning_rate}]")
+    # print('-' * 100)
+    # print(model)
 
     # params
     params_to_update = model.parameters()
@@ -53,7 +53,8 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     transform_dict = {
         'train': transforms.Compose(
             [
-                transforms.RandomResizedCrop(input_size),
+                transforms.Resize(input_size),
+                # transforms.RandomResizedCrop(input_size),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
@@ -61,7 +62,7 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         'eval': transforms.Compose(
             [
                 transforms.Resize(input_size),
-                transforms.CenterCrop(input_size),
+                # transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
@@ -104,6 +105,7 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         train_loss, train_acc = train(trainloader, model, batch_size, criterion, optimizer, device)
         train_losses.append(train_loss)
         train_accs.append(train_acc)
+        print(f"EPOCH {epoch + 1}: [TRAINING loss: {train_loss:.5f} acc: {train_acc:.2f}%]")
 
         # test
         print("Testing")
@@ -115,9 +117,8 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         test_accs.append(test_acc)
         true_list += true
         predict_list += predict
+        print(f"EPOCH {epoch + 1}: [TESTING loss: {test_loss:.5f} acc: {test_acc:.2f}%]")
 
-        print(f"EPOCH {epoch + 1}: [TRAINING loss: {train_loss:.5f} acc: {train_acc:.2f}%]"
-              ,f"[TESTING loss: {test_loss:.5f} acc: {test_acc:.2f}%]")
         print('-' * 100)
 
     print('-' * 100)
