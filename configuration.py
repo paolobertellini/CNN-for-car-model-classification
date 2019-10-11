@@ -94,14 +94,14 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     d = datetime.datetime.now()
     date_id = str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(
         getattr(d, 'hour')) + ':' + str(getattr(d, 'minute'))
-    id = model_name + '__' + date_id + '__' + str(epochs) + 'e__'
+    id = model_name + '__' + date_id + '__' + str(learning_rate) + 'e__'
     if feature_extract:
         id += 'FE__'
 
     best_test_acc = 0.
 
-    for epoch in range(epochs):
-        print(f"EPOCH {epoch + 1}/{epochs}")
+    for epoch in range(1, epochs):
+        print(f"EPOCH {epoch}/{epochs}")
 
         # training
         print("Training")
@@ -134,7 +134,7 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         test_accs.append(test_acc)
         true_list += true
         predict_list += predict
-        print(f"EPOCH {epoch + 1}: [TESTING loss: {test_loss:.5f} acc: {test_acc:.2f}%]")
+        print(f"EPOCH {epoch}: [TESTING loss: {test_loss:.5f} acc: {test_acc:.2f}%]")
 
         print('-' * 100)
 
@@ -147,7 +147,7 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
             main.write('data/' + id + 'predict.csv', predict_list)
 
         if print_plots:
-            plots.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs,
+            plots.printPlots(id, classes, dataset_dir, epoch, train_losses, train_accs,
                              test_losses, test_accs,
                              predict_list, true_list)
 

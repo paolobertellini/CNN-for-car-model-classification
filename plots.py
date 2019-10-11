@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import pandas as pd
-# import seaborn as sns
+import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
 from dataset import import_meta
@@ -15,26 +15,27 @@ def read(filename):
     list = []
     with open('data/' + filename, 'rt')as f:
         data = csv.reader(f)
-        for row in data:
-            list.append(float(row[0]))
+        for i, row in enumerate(data):
+            if(i <= 50):
+                list.append(float(row[0]))
     return list
 
 
 def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_loss, test_acc, predict, true):
 
-    train_labels = import_meta(dataset_dir / 'train')
-    train_classes = list(0. for i in range(10))
-    for l in train_labels:
-        train_classes[l] += 1
-
-    test_labels = import_meta(dataset_dir / 'test')
-    test_classes = list(0. for i in range(10))
-    for l in test_labels:
-        test_classes[l] += 1
+    # train_labels = import_meta(dataset_dir / 'train')
+    # train_classes = list(0. for i in range(10))
+    # for l in train_labels:
+    #     train_classes[l] += 1
+    #
+    # test_labels = import_meta(dataset_dir / 'test')
+    # test_classes = list(0. for i in range(10))
+    # for l in test_labels:
+    #     test_classes[l] += 1
 
     #datasetDistribution(train_classes, classes, 'Trainset')
     #datasetDistribution(test_classes, classes, 'Testset')
-    datasetComparison(classes, train_classes, test_classes)
+    # datasetComparison(classes, train_classes, test_classes)
 
     lossHistory(id, 'Train', train_loss)
     accuracyHistory(id, 'Train', train_acc)
@@ -68,8 +69,8 @@ def printPlotById(id, dataset_dir, classes):
     train_acc = read(id + 'train_acc.csv')
     test_acc = read(id + 'test_acc.csv')
 
-    true = read(id + 'true.csv')
-    predict = read(id + 'predict.csv')
+    # true = read(id + 'true.csv')
+    # predict = read(id + 'predict.csv')
 
     lossHistory(id, 'Train', train_losses)
     lossHistory(id, 'Test', test_losses)
@@ -79,15 +80,16 @@ def printPlotById(id, dataset_dir, classes):
     lossComparison(id, train_losses, test_losses, len(train_losses))
     accComparison(id, train_acc, test_acc, len(train_acc))
 
-    conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
-    conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
+    # conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
+    # conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 
 def datasetDistribution(model_name, labels, classes, title):
     plt.bar(classes, labels)
     plt.xticks(rotation=30, ha='right')
     plt.title(f"{title} distribution")
     plt.savefig('plots_data/'+ model_name + '_' + 'e_dataset_distribution.png')
-    plt.show()
+    plt.clf()
+    # plt.show()
 
 def datasetComparison(classes, train, test):
     # plt.bar(classes, train)
@@ -112,7 +114,8 @@ def datasetComparison(classes, train, test):
     plt.xticks(rotation=90, ha='right')
     plt.legend()
     plt.savefig('plots_data/dataset_comparison')
-    plt.show()
+    plt.clf()
+    # plt.show()
 
 
 def lossHistory(id, name, losses):
@@ -121,7 +124,8 @@ def lossHistory(id, name, losses):
     plt.xlabel('Epochs', fontweight='bold')
     plt.ylabel('Loss', fontweight='bold')
     plt.savefig('plots_data/' + id + '_loss_' + name +'.png')
-    plt.show()
+    plt.clf()
+    # plt.show()
 
 def accuracyHistory(id, name, accs):
     plt.plot(accs, linewidth=4)
@@ -129,7 +133,8 @@ def accuracyHistory(id, name, accs):
     plt.xlabel('Epochs', fontweight='bold')
     plt.ylabel('Accuracy', fontweight='bold')
     plt.savefig('plots_data/' + id + '_acc_' + name +'.png')
-    plt.show()
+    plt.clf()
+    # plt.show()
 
 
 def lossComparison(id, train_loss, test_loss, epochs):
@@ -139,9 +144,11 @@ def lossComparison(id, train_loss, test_loss, epochs):
     plt.title('Loss comparison', fontweight='bold')
     plt.xlabel('Epochs', fontweight='bold')
     plt.ylabel('Loss', fontweight='bold')
+    plt.ylim(0, 6)
     plt.legend(handles=[trainig, testing])
     plt.savefig('plots_data/' + id + '_loss_comparison.png')
-    plt.show()
+    plt.clf()
+    # plt.show()
 
 def accComparison(id, train_acc, test_acc, epochs):
     trainig = mpatches.Patch(color='royalblue', label='Training')
@@ -153,7 +160,8 @@ def accComparison(id, train_acc, test_acc, epochs):
     plt.ylim(0, 100)
     plt.legend(handles=[trainig, testing])
     plt.savefig('plots_data/' + id + '_acc_comparison.png')
-    plt.show()
+    # plt.show()
+    plt.clf()
 
 
 
@@ -189,8 +197,8 @@ def conf_matrix1(id, y_true, y_pred, classes, labels, ymap=None, figsize=(10,10)
     fig, ax = plt.subplots(figsize=figsize)
     sns.heatmap(cm, annot=annot, fmt='', ax=ax, cmap="Blues")
     plt.savefig('plots_data/' + id + '_matrix.png')
-    plt.show()
-
+    # plt.show()
+    plt.clf()
 
 def conf_matrix2(id, y_true, y_pred, classes, labels, cmap=plt.cm.Blues):
 
@@ -220,5 +228,5 @@ def conf_matrix2(id, y_true, y_pred, classes, labels, cmap=plt.cm.Blues):
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
     plt.savefig('plots_data/' + id + '_matrix2.png')
-    plt.show()
-
+    # plt.show()
+    plt.clf()
