@@ -47,15 +47,14 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     transform_dict = {
         'train': transforms.Compose(
             [
-                transforms.RandomResizedCrop(input_size),
+                transforms.Resize(input_size),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ]),
         'eval': transforms.Compose(
             [
-                transforms.Resize(256),
-                transforms.CenterCrop(input_size),
+                transforms.Resize(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
