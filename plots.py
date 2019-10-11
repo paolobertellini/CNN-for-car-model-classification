@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import pandas as pd
-# import seaborn as sns
+import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
 from dataset import import_meta
@@ -70,16 +70,19 @@ def printPlotById(id, dataset_dir, classes):
     train_acc = read(id + 'train_acc.csv')
     test_acc = read(id + 'test_acc.csv')
 
+    true = read(id + 'true.csv')
+    predict = read(id + 'predict.csv')
+
     lossHistory(id, 'Train', train_losses)
     lossHistory(id, 'Test', test_losses)
     accuracyHistory(id, 'Train', train_acc)
     accuracyHistory(id, 'Test', test_acc)
 
-    lossComparison(id, train_losses, test_losses, 101)
-    accComparison(id, train_acc, test_acc, 101)
+    lossComparison(id, train_losses, test_losses, len(train_losses))
+    accComparison(id, train_acc, test_acc, len(train_acc))
 
-    # conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
-    # conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
+    conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
+    conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 
 def datasetDistribution(model_name, labels, classes, title):
     plt.bar(classes, labels)
@@ -217,6 +220,6 @@ def conf_matrix2(id, y_true, y_pred, classes, labels, cmap=plt.cm.Blues):
     plt.tight_layout()
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
-
+    plt.savefig('plots_data/' + id + '_matrix2.png')
     plt.show()
 

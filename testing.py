@@ -9,9 +9,9 @@ def test(testloader, net, batch_size, criterion, device):
     true = []
     predict = []
 
-    epoch_items = list(0. for i in range(10))
-    epoch_corrects = list(0. for i in range(10))
-    epoch_losses = list(0. for i in range(10))
+    epoch_items = 0
+    epoch_corrects = 0
+    epoch_losses = []
 
     net.eval()
 
@@ -26,19 +26,19 @@ def test(testloader, net, batch_size, criterion, device):
 
         for item in range(batch_size):
             label = labels[item]
-            epoch_items[label] += 1
+            epoch_items += 1
 
             predicted = prediction.data[item]
             predict.append(predicted.item())
             true.append(label.item())
 
             if predicted == label:
-                epoch_corrects[label] += 1
+                epoch_corrects += 1
 
         loss = criterion(outputs, labels)
         epoch_losses.append(loss.item())
 
     epoch_avg_loss = np.asarray(epoch_losses).mean()
-    epoch_acc = 100 * sum(epoch_corrects) / sum(epoch_items)
+    epoch_acc = 100 * epoch_corrects / epoch_items
 
     return epoch_avg_loss, epoch_acc, true, predict

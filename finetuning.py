@@ -26,7 +26,7 @@ def initialize_model(model_name, num_classes, feature_extract, use_pretrained=Tr
         model_ft.fc2 = nn.Linear(num_ftrs, num_classes)
         input_size = 32
 
-    elif model_name == "paolo":
+    elif model_name == "lenet5":
         model_ft = Small()
         set_parameter_requires_grad(model_ft, feature_extract)
         num_ftrs = model_ft.fc3.in_features

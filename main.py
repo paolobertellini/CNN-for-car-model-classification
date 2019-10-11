@@ -45,16 +45,16 @@ if __name__ == '__main__':
     classes = ('Full size car', 'Mid size car', 'Cross over', 'Van',
                'Coupe', 'Family car', 'Beetle', 'Single seater', 'City car', 'Pick up')
 
-    # printPlotById('vgg19__2019-10-8__18_55__101e__', args.dataset_dir, classes)
+    # printPlotById('vgg__10-10__19_22__50e__FE__', args.dataset_dir, classes)
 
     configuration.execute(device=device,
-                          model_name='vgg19',
+                          model_name='lenet5',
                           dataset_dir=args.dataset_dir,
                           batch_size=args.batch_size,
-                          epochs=20,
-                          learning_rate=0.0002,
+                          epochs=50,
+                          learning_rate=0.001,
                           num_classes=10,
-                          feature_extract=True,
+                          feature_extract=False,
                           use_pretrained=True,
                           save_file=True,
                           print_plots=True)

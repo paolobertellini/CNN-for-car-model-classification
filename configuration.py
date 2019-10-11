@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from torchvision import transforms
 
 import main
-import plots_data
+import plots
 from dataset import CarDataset
 from finetuning import initialize_model
 from testing import test
@@ -47,14 +47,15 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     transform_dict = {
         'train': transforms.Compose(
             [
-                transforms.Resize(input_size),
+                transforms.RandomResizedCrop(input_size),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ]),
         'eval': transforms.Compose(
             [
-                transforms.Resize(input_size),
+                transforms.Resize(256),
+                transforms.CenterCrop(input_size),
                 transforms.ToTensor(),
                 transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
             ])
@@ -132,9 +133,11 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     print('-' * 100)
 
     d = datetime.datetime.now()
-    date_id = str(getattr(d, 'year')) + '-' + str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(
+    date_id = str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(
         getattr(d, 'hour')) + ':' + str(getattr(d, 'minute'))
     id = model_name + '__' + date_id + '__' + str(epochs) + 'e__'
+    if feature_extract:
+        id += 'FE__'
 
     if save_file:
         print("Saving files...")
@@ -143,12 +146,14 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
         main.write('data/' + id + 'train_acc.csv', train_accs)
         main.write('data/' + id + 'test_loss.csv', test_losses)
         main.write('data/' + id + 'test_acc.csv', test_accs)
+        main.write('data/' + id + 'true.csv', true_list)
+        main.write('data/' + id + 'predict.csv', predict_list)
         print("FILES SAVED")
         print('-' * 100)
 
     if print_plots:
         print("Printing plots_data...")
-        plots_data.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs, test_losses, test_accs,
+        plots.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs, test_losses, test_accs,
                               predict_list, true_list)
         print("PLOTS PRINTED AND SAVED")
         print('-' * 100)
