@@ -89,6 +89,13 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
 
     optimizer = optim.Adam(params_to_update, lr=learning_rate)
 
+    d = datetime.datetime.now()
+    date_id = str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(
+        getattr(d, 'hour')) + ':' + str(getattr(d, 'minute'))
+    id = model_name + '__' + date_id + '__' + str(epochs) + 'e__'
+    if feature_extract:
+        id += 'FE__'
+
     for epoch in range(epochs):
         print(f"EPOCH {epoch + 1}/{epochs}")
 
@@ -113,6 +120,19 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
 
         print('-' * 100)
 
+        if save_file:
+            main.write('data/' + id + 'train_loss.csv', train_losses)
+            main.write('data/' + id + 'train_acc.csv', train_accs)
+            main.write('data/' + id + 'test_loss.csv', test_losses)
+            main.write('data/' + id + 'test_acc.csv', test_accs)
+            main.write('data/' + id + 'true.csv', true_list)
+            main.write('data/' + id + 'predict.csv', predict_list)
+
+        if print_plots:
+            plots.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs,
+                             test_losses, test_accs,
+                             predict_list, true_list)
+
     print('-' * 100)
     print(f"TRAINING AND TESTING FINISHED")
     print('-' * 100)
@@ -130,32 +150,6 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     print(f"TEST ACCURACY HISTORY: {test_accs}")
     print('-' * 100)
     print('-' * 100)
-
-    d = datetime.datetime.now()
-    date_id = str(getattr(d, 'month')) + '-' + str(getattr(d, 'day')) + '__' + str(
-        getattr(d, 'hour')) + ':' + str(getattr(d, 'minute'))
-    id = model_name + '__' + date_id + '__' + str(epochs) + 'e__'
-    if feature_extract:
-        id += 'FE__'
-
-    if save_file:
-        print("Saving files...")
-        id_save = 'data/' + id
-        main.write('data/' + id + 'train_loss.csv', train_losses)
-        main.write('data/' + id + 'train_acc.csv', train_accs)
-        main.write('data/' + id + 'test_loss.csv', test_losses)
-        main.write('data/' + id + 'test_acc.csv', test_accs)
-        main.write('data/' + id + 'true.csv', true_list)
-        main.write('data/' + id + 'predict.csv', predict_list)
-        print("FILES SAVED")
-        print('-' * 100)
-
-    if print_plots:
-        print("Printing plots_data...")
-        plots.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs, test_losses, test_accs,
-                              predict_list, true_list)
-        print("PLOTS PRINTED AND SAVED")
-        print('-' * 100)
 
     print('-' * 100)
     print('-' * 100)
