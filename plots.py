@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import csv
 import pandas as pd
-import seaborn as sns
+# import seaborn as sns
 from sklearn.metrics import confusion_matrix
 
 from dataset import import_meta
@@ -46,8 +46,6 @@ def printPlots(id, classes, dataset_dir, epochs, train_loss, train_acc, test_los
     lossComparison(id, train_loss, test_loss, epochs)
     accComparison(id, train_acc, test_acc, epochs)
 
-    conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
-    conf_matrix2(id, true, predict, classes, list(i for i in range(10)))
 
 def printPlotById(id, dataset_dir, classes):
     train_labels = import_meta(dataset_dir / 'train')
@@ -192,6 +190,7 @@ def conf_matrix1(id, y_true, y_pred, classes, labels, ymap=None, figsize=(10,10)
     sns.heatmap(cm, annot=annot, fmt='', ax=ax, cmap="Blues")
     plt.savefig('plots_data/' + id + '_matrix.png')
     plt.show()
+
 
 def conf_matrix2(id, y_true, y_pred, classes, labels, cmap=plt.cm.Blues):
 

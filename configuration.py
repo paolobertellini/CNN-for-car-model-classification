@@ -1,4 +1,5 @@
 import datetime
+from pathlib import Path
 
 import torch
 import torch.nn as nn
@@ -10,6 +11,7 @@ import main
 import plots
 from dataset import CarDataset
 from finetuning import initialize_model
+from plots import conf_matrix1
 from testing import test
 from training import train
 
@@ -96,6 +98,8 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
     if feature_extract:
         id += 'FE__'
 
+    best_test_acc = 0.
+
     for epoch in range(epochs):
         print(f"EPOCH {epoch + 1}/{epochs}")
 
@@ -111,6 +115,20 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
 
         with torch.no_grad():
             test_loss, test_acc, true, predict = test(testloader, model, batch_size, criterion, device)
+
+        if test_acc > best_test_acc:
+
+            best_test_acc = test_acc
+
+            # Keep track of best epoch
+            best_epoch_file = Path('data') / (id + 'best_epoch.txt')
+            with best_epoch_file.open('wt') as f:
+                f.write(str(epoch))
+
+            # Save best model weights
+            torch.save(model.state_dict(), 'data/' + id + 'weights.pth')
+
+            conf_matrix1(id, true, predict, classes, list(i for i in range(10)), figsize=(10, 10))
 
         test_losses.append(test_loss)
         test_accs.append(test_acc)
@@ -132,6 +150,7 @@ def execute(device, model_name, dataset_dir, batch_size, epochs, learning_rate, 
             plots.printPlots(id, classes, dataset_dir, epochs, train_losses, train_accs,
                              test_losses, test_accs,
                              predict_list, true_list)
+
 
     print('-' * 100)
     print(f"TRAINING AND TESTING FINISHED")
